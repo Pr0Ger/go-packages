@@ -1,0 +1,26 @@
+linters:
+  presets:
+  - bugs
+  - format
+  - performance
+  - unused
+  enable:
+  - dupl
+  - gochecknoglobals
+  - gochecknoinits
+  - goconst
+  - gocritic
+  - godox
+  - golint
+  - gosimple
+  - interfacer
+  - lll
+  - misspell
+  - nakedret
+  - stylecheck
+  - unconvert
+  - whitespace
+
+linters-settings:
+  lll:
+    tab-width: 4

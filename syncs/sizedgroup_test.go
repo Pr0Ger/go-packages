@@ -66,7 +66,7 @@ func TestSizedGroup_Cancellation(t *testing.T) {
 
 func TestSizedGroup_CancellationWhileWaiting(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
-	// defer cancel()
+	defer cancel()
 
 	swg := NewSizedGroup(ctx, 1)
 	var c int32
