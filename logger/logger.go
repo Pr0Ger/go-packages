@@ -41,11 +41,17 @@ func Ctx(ctx context.Context) *zap.Logger {
 	return entry
 }
 
-func RequestLogger(localCore zapcore.Core, opts ...SentryCoreOption) func(next http.Handler) http.Handler {
+func RequestLogger(logger zap.Logger) func(next http.Handler) http.Handler {
+	core := logger.Core()
+	rootHub := sentry.CurrentHub()
+	if wrappedCore, ok := core.(SentryCoreWrapper); ok {
+		core = wrappedCore.localCore
+		rootHub = wrappedCore.sentryCore.hub
+	}
+
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			hub := sentry.CurrentHub().Clone()
-			logger := zap.New(zapcore.NewTee(localCore, NewSentryCore(hub, opts...)))
+			logger := zap.New(zapcore.NewTee(core, NewSentryCore(rootHub)))
 
 			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
