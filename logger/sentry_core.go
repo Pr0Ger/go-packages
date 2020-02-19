@@ -1,9 +1,12 @@
 package logger
 
 import (
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	"github.com/pkg/errors"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -81,14 +84,45 @@ func (s *SentryCore) Check(ent zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore
 
 func (s *SentryCore) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 	data := zapcore.NewMapObjectEncoder()
+	var errField error
 	for _, field := range fields {
-		field.AddTo(data)
+		if field.Type == zapcore.ErrorType {
+			errField = field.Interface.(error)
+		} else {
+			field.AddTo(data)
+		}
 	}
 
 	if ent.Level >= s.EventLevel {
 		event := sentry.NewEvent()
 		event.Message = ent.Message
 		event.Extra = data.Fields
+
+		if errField != nil {
+			stacktrace := sentry.ExtractStacktrace(errField)
+			if stacktrace == nil {
+				stacktrace = sentry.NewStacktrace()
+			}
+
+			filteredFrames := make([]sentry.Frame, 0, len(stacktrace.Frames))
+			for _, frame := range stacktrace.Frames {
+				if strings.HasPrefix(frame.Module, "go.uber.org/zap") ||
+					strings.HasPrefix(frame.Module, "go.pr0ger.dev/logger") {
+					continue
+				}
+
+				filteredFrames = append(filteredFrames, frame)
+			}
+			stacktrace.Frames = filteredFrames
+
+			cause := errors.Cause(errField)
+
+			event.Exception = []sentry.Exception{{
+				Value:      cause.Error(),
+				Type:       reflect.TypeOf(cause).String(),
+				Stacktrace: stacktrace,
+			}}
+		}
 
 		s.hub.CaptureEvent(event)
 	}
@@ -101,6 +135,10 @@ func (s *SentryCore) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 		Type:      BreadcrumbTypeDefault,
 	}
 	s.hub.AddBreadcrumb(&breadcrumb, nil)
+
+	if ent.Level > zapcore.ErrorLevel {
+		_ = s.Sync()
+	}
 
 	return nil
 }
