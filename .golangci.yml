@@ -1,26 +1,31 @@
 linters:
   presets:
   - bugs
+  - complexity
   - format
   - performance
+  - style
   - unused
-  enable:
-  - dupl
-  - gochecknoglobals
-  - gochecknoinits
-  - goconst
-  - gocritic
-  - godox
-  - golint
-  - gosimple
-  - interfacer
-  - lll
-  - misspell
-  - nakedret
-  - stylecheck
-  - unconvert
-  - whitespace
-
+  disable:
+  - depguard # usually "don't use this lib" can be solved via code reviews
+  - funlen # functions can be long but simple
+  - godot # looks buggy right now
+  - gomnd # magic numbers sometimes not magic at all
+  - gomodguard # same as depguard
+  - testpackage # sometimes doesn't work as expected
+  - wsl # this rules is usually only annoys you
 linters-settings:
+  dogsled:
+    max-blank-identifiers: 3
+  errcheck:
+    exclude: .errcheck_excludes.txt
   lll:
     tab-width: 4
+  nolintlint:
+    allow-leading-space: false
+issues:
+  exclude-rules:
+  - path: _test\.go
+    linters:
+    - goerr113
+    - scopelint
