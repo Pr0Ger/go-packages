@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	"go.pr0ger.dev/cryptosource"
+	"go.pr0ger.dev/x/cryptosource"
 )
 
 type ExponentialBackoff struct {

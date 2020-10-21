@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"go.pr0ger.dev/httpexpect"
+	"go.pr0ger.dev/x/httpexpect"
 )
 
 func TestMethod(t *testing.T) {

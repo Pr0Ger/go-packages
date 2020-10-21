@@ -1,10 +1,8 @@
-module go.pr0ger.dev
+module go.pr0ger.dev/x
 
 go 1.14
 
-replace (
-    github.com/stretchr/testify => github.com/Pr0Ger/testify v1.6.2-0.20200612140325-d7878e2669ae
-)
+replace github.com/stretchr/testify => github.com/Pr0Ger/testify v1.6.2-0.20200612140325-d7878e2669ae
 
 require (
 	github.com/golang/mock v1.4.3

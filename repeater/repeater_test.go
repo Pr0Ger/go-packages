@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"go.pr0ger.dev/repeater"
+	"go.pr0ger.dev/x/repeater"
 )
 
 func TestRepeater_Do(t *testing.T) {

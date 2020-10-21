@@ -4,7 +4,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
 
-	"go.pr0ger.dev/httpexpect/mocks"
+	"go.pr0ger.dev/x/httpexpect/mocks"
 )
 
 type JSONValueSuite struct {

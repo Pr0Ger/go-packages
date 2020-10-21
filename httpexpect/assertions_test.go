@@ -7,8 +7,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
 
-	"go.pr0ger.dev/httpexpect"
-	"go.pr0ger.dev/httpexpect/mocks"
+	"go.pr0ger.dev/x/httpexpect"
+	"go.pr0ger.dev/x/httpexpect/mocks"
 )
 
 //go:generate mockgen -package mocks -destination mocks/testingT.go . TestingT
