@@ -1,6 +1,6 @@
 module go.pr0ger.dev
 
-go 1.13
+go 1.14
 
 replace (
     github.com/stretchr/testify => github.com/Pr0Ger/testify v1.6.2-0.20200612140325-d7878e2669ae
