@@ -35,20 +35,38 @@ func (suite *TestExpectationSuite) TestJSONObject() {
 	suite.t.EXPECT().Errorf(gomock.Any(), gomock.Any()).MinTimes(2)
 	suite.t.EXPECT().FailNow().MinTimes(2)
 
-	called := false
 	invalidJSON := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Write([]byte(`"invalid json`))
-		called = true
 	})
 	arrayJSON := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Write([]byte(`[1, 2, 3]`))
-		called = true
+	})
+	objectJSON := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Write([]byte(`{"key": 1}`))
 	})
 
 	httpexpect.Get(suite.t, invalidJSON).JSONObject()
-	suite.True(called)
-
 	httpexpect.Get(suite.t, arrayJSON).JSONObject()
+	suite.EqualValues(1, httpexpect.Get(suite.t, objectJSON).JSONObject().Number("key").Value())
+}
+
+func (suite *TestExpectationSuite) TestJSONArray() {
+	suite.t.EXPECT().Errorf(gomock.Any(), gomock.Any()).MinTimes(2)
+	suite.t.EXPECT().FailNow().MinTimes(2)
+
+	invalidJSON := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Write([]byte(`"invalid json`))
+	})
+	objectJSON := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Write([]byte(`{"key"": 123}`))
+	})
+	arrayJSON := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Write([]byte(`[1, 2, 3]`))
+	})
+
+	httpexpect.Get(suite.t, invalidJSON).JSONArray()
+	httpexpect.Get(suite.t, objectJSON).JSONArray()
+	suite.EqualValues(3, httpexpect.Get(suite.t, arrayJSON).JSONArray().Len().Value())
 }
 
 func (suite *TestExpectationSuite) TestNoContent() {

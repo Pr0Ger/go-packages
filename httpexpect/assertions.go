@@ -6,6 +6,27 @@ import (
 	"net/http"
 )
 
+func (e Expectation) JSONArray() *JSONArray {
+	e.t.Helper()
+
+	var value interface{}
+	if err := json.Unmarshal(e.recorder.Body.Bytes(), &value); err != nil {
+		e.fatalf("json unmarshall failed: %v", err)
+		return nil
+	}
+
+	if obj, ok := value.(JSONArrayType); ok {
+		return &JSONArray{
+			expectation: &e,
+			path:        ".",
+			value:       obj,
+		}
+	}
+	e.fatalf("expected array, got: %#v", value)
+
+	return nil
+}
+
 func (e Expectation) JSONObject() *JSONObject {
 	e.t.Helper()
 
