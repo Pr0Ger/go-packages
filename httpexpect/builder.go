@@ -3,36 +3,46 @@ package httpexpect
 import (
 	"bytes"
 	"encoding/json"
-	"net/http"
 )
 
-type ExpectationBuilder struct {
-	t       TestingT
-	handler http.HandlerFunc
-	method  string
-}
-
-func newExpectationBuilder(t TestingT, handler http.HandlerFunc, method string) ExpectationBuilder {
-	return ExpectationBuilder{
-		t:       t,
-		handler: handler,
-		method:  method,
+func (e Expectation) WithQuery(query string) Expectation {
+	if e.recorder != nil {
+		panic("handler is already invoked")
 	}
+
+	e.target = query
+
+	return e
 }
 
-func (b ExpectationBuilder) WithoutBody() Expectation {
-	return newExpectation(b.t, b.handler, b.method, nil)
+func (e Expectation) WithoutBody() Expectation {
+	if e.recorder != nil {
+		panic("handler is already invoked")
+	}
+
+	return e
 }
 
-func (b ExpectationBuilder) WithPlainText(data []byte) Expectation {
-	return newExpectation(b.t, b.handler, b.method, bytes.NewBuffer(data))
+func (e Expectation) WithPlainText(data []byte) Expectation {
+	if e.recorder != nil {
+		panic("handler is already invoked")
+	}
+
+	e.payload = bytes.NewBuffer(data)
+
+	return e
 }
 
-func (b ExpectationBuilder) WithJSON(data interface{}) Expectation {
+func (e Expectation) WithJSON(data interface{}) Expectation {
+	if e.recorder != nil {
+		panic("handler is already invoked")
+	}
+
 	body, err := json.Marshal(data)
 	if err != nil {
 		panic(err)
 	}
 
-	return newExpectation(b.t, b.handler, b.method, bytes.NewBuffer(body))
+	e.payload = bytes.NewBuffer(body)
+	return e
 }

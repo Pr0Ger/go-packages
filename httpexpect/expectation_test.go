@@ -11,16 +11,15 @@ import (
 
 func TestMethod(t *testing.T) {
 	tests := []struct {
-		simpleFunk  func(t httpexpect.TestingT, handler http.HandlerFunc) httpexpect.Expectation
-		builderFunk func(t httpexpect.TestingT, handler http.HandlerFunc) httpexpect.ExpectationBuilder
+		builderFunc func(t httpexpect.TestingT, handler http.HandlerFunc) httpexpect.Expectation
 		method      string
 	}{
-		{httpexpect.Get, nil, http.MethodGet},
-		{httpexpect.Head, nil, http.MethodHead},
-		{nil, httpexpect.Post, http.MethodPost},
-		{nil, httpexpect.Put, http.MethodPut},
-		{nil, httpexpect.Patch, http.MethodPatch},
-		{nil, httpexpect.Delete, http.MethodDelete},
+		{httpexpect.Get, http.MethodGet},
+		{httpexpect.Head, http.MethodHead},
+		{httpexpect.Post, http.MethodPost},
+		{httpexpect.Put, http.MethodPut},
+		{httpexpect.Patch, http.MethodPatch},
+		{httpexpect.Delete, http.MethodDelete},
 	}
 
 	dumbT := &testing.T{}
@@ -32,12 +31,7 @@ func TestMethod(t *testing.T) {
 				called = true
 			})
 
-			if tt.simpleFunk != nil {
-				_ = tt.simpleFunk(dumbT, stubHandler)
-			}
-			if tt.builderFunk != nil {
-				_ = tt.builderFunk(dumbT, stubHandler).WithoutBody()
-			}
+			_ = tt.builderFunc(dumbT, stubHandler).Status(http.StatusOK)
 
 			require.True(t, called)
 		})

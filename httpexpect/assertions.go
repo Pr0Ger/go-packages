@@ -8,6 +8,7 @@ import (
 
 func (e Expectation) JSONArray() *JSONArray {
 	e.t.Helper()
+	e.performRequest()
 
 	var value interface{}
 	if err := json.Unmarshal(e.recorder.Body.Bytes(), &value); err != nil {
@@ -29,6 +30,7 @@ func (e Expectation) JSONArray() *JSONArray {
 
 func (e Expectation) JSONObject() *JSONObject {
 	e.t.Helper()
+	e.performRequest()
 
 	var value interface{}
 	if err := json.Unmarshal(e.recorder.Body.Bytes(), &value); err != nil {
@@ -50,6 +52,7 @@ func (e Expectation) JSONObject() *JSONObject {
 
 func (e Expectation) NoContent() Expectation {
 	e.t.Helper()
+	e.performRequest()
 
 	if e.recorder.Body.Len() != 0 {
 		e.errorf("Body is not empty")
@@ -60,6 +63,7 @@ func (e Expectation) NoContent() Expectation {
 
 func (e Expectation) Status(status int) Expectation {
 	e.t.Helper()
+	e.performRequest()
 
 	if e.recorder.Code != status {
 		e.errorf(fmt.Sprintf("\n"+

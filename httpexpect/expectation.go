@@ -15,24 +15,36 @@ type TestingT interface {
 type Expectation struct {
 	t       TestingT
 	handler http.HandlerFunc
+	method  string
+	target  string
+	payload io.Reader
 
 	recorder *httptest.ResponseRecorder
 
 	require bool
 }
 
-func newExpectation(t TestingT, handler http.HandlerFunc, method string, payload io.Reader) Expectation {
-	req := httptest.NewRequest(method, "/", payload)
-
-	recorder := httptest.NewRecorder()
-
-	handler.ServeHTTP(recorder, req)
-
+func newExpectation(t TestingT, handler http.HandlerFunc, method string) Expectation {
 	return Expectation{
-		t:        t,
-		handler:  handler,
-		recorder: recorder,
+		t:       t,
+		handler: handler,
+		method:  method,
 	}
+}
+
+func (e *Expectation) performRequest() {
+	if e.recorder != nil {
+		// expectation is already executed; noop
+		return
+	}
+
+	if e.target == "" {
+		e.target = "/"
+	}
+
+	req := httptest.NewRequest(e.method, e.target, e.payload)
+	e.recorder = httptest.NewRecorder()
+	e.handler.ServeHTTP(e.recorder, req)
 }
 
 func (e Expectation) Require() Expectation {
@@ -57,25 +69,25 @@ func (e Expectation) fatalf(format string, args ...interface{}) {
 }
 
 func Get(t TestingT, handler http.HandlerFunc) Expectation {
-	return newExpectation(t, handler, http.MethodGet, nil)
+	return newExpectation(t, handler, http.MethodGet)
 }
 
 func Head(t TestingT, handler http.HandlerFunc) Expectation {
-	return newExpectation(t, handler, http.MethodHead, nil)
+	return newExpectation(t, handler, http.MethodHead)
 }
 
-func Post(t TestingT, handler http.HandlerFunc) ExpectationBuilder {
-	return newExpectationBuilder(t, handler, http.MethodPost)
+func Post(t TestingT, handler http.HandlerFunc) Expectation {
+	return newExpectation(t, handler, http.MethodPost)
 }
 
-func Put(t TestingT, handler http.HandlerFunc) ExpectationBuilder {
-	return newExpectationBuilder(t, handler, http.MethodPut)
+func Put(t TestingT, handler http.HandlerFunc) Expectation {
+	return newExpectation(t, handler, http.MethodPut)
 }
 
-func Patch(t TestingT, handler http.HandlerFunc) ExpectationBuilder {
-	return newExpectationBuilder(t, handler, http.MethodPatch)
+func Patch(t TestingT, handler http.HandlerFunc) Expectation {
+	return newExpectation(t, handler, http.MethodPatch)
 }
 
-func Delete(t TestingT, handler http.HandlerFunc) ExpectationBuilder {
-	return newExpectationBuilder(t, handler, http.MethodDelete)
+func Delete(t TestingT, handler http.HandlerFunc) Expectation {
+	return newExpectation(t, handler, http.MethodDelete)
 }

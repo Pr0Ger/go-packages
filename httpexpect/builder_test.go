@@ -21,7 +21,7 @@ func TestExpectationBuilder_WithoutBody(t *testing.T) {
 		called = true
 	})
 
-	_ = httpexpect.Post(&testing.T{}, stubHandler).WithoutBody()
+	_ = httpexpect.Post(&testing.T{}, stubHandler).WithoutBody().Status(http.StatusOK)
 
 	assert.True(t, called)
 }
@@ -38,7 +38,7 @@ func TestExpectationBuilder_WithPlainText(t *testing.T) {
 		called = true
 	})
 
-	_ = httpexpect.Post(&testing.T{}, stubHandler).WithPlainText(payload)
+	_ = httpexpect.Post(&testing.T{}, stubHandler).WithPlainText(payload).Status(http.StatusOK)
 
 	assert.True(t, called)
 }
@@ -64,7 +64,7 @@ func TestExpectationBuilder_WithJSON(t *testing.T) {
 				called = true
 			})
 
-			_ = httpexpect.Post(&testing.T{}, stubHandler).WithJSON(tt.data)
+			_ = httpexpect.Post(&testing.T{}, stubHandler).WithJSON(tt.data).Status(http.StatusOK)
 
 			assert.True(t, called)
 		})
@@ -81,6 +81,9 @@ func TestExpectationBuilder_WithInvalidJSON(t *testing.T) {
 		data := marshalError{}
 		data.P = &data
 
-		_ = httpexpect.Post(&testing.T{}, func(http.ResponseWriter, *http.Request) {}).WithJSON(data)
+		_ = httpexpect.
+			Post(&testing.T{}, func(http.ResponseWriter, *http.Request) {}).
+			WithJSON(data).
+			Status(http.StatusOK)
 	})
 }
