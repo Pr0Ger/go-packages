@@ -2,8 +2,19 @@ package httpexpect
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 )
+
+func (e Expectation) WithContext(ctx context.Context) Expectation {
+	if e.recorder != nil {
+		panic("handler is already invoked")
+	}
+
+	e.context = ctx
+
+	return e
+}
 
 func (e Expectation) WithQuery(query string) Expectation {
 	if e.recorder != nil {

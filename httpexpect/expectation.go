@@ -1,6 +1,7 @@
 package httpexpect
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -18,6 +19,7 @@ type Expectation struct {
 	method  string
 	target  string
 	payload io.Reader
+	context context.Context
 
 	recorder *httptest.ResponseRecorder
 
@@ -43,6 +45,9 @@ func (e *Expectation) performRequest() {
 	}
 
 	req := httptest.NewRequest(e.method, e.target, e.payload)
+	if e.context != nil {
+		req = req.WithContext(e.context)
+	}
 	e.recorder = httptest.NewRecorder()
 	e.handler.ServeHTTP(e.recorder, req)
 }
