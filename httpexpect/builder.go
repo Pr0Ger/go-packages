@@ -39,6 +39,7 @@ func (e Expectation) WithPlainText(data []byte) Expectation {
 		panic("handler is already invoked")
 	}
 
+	e.contentType = "text/plain"
 	e.payload = bytes.NewBuffer(data)
 
 	return e
@@ -54,6 +55,7 @@ func (e Expectation) WithJSON(data interface{}) Expectation {
 		panic(err)
 	}
 
+	e.contentType = "application/json"
 	e.payload = bytes.NewBuffer(body)
 	return e
 }

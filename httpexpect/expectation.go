@@ -14,12 +14,13 @@ type TestingT interface {
 }
 
 type Expectation struct {
-	t       TestingT
-	handler http.HandlerFunc
-	method  string
-	target  string
-	payload io.Reader
-	context context.Context
+	t           TestingT
+	handler     http.HandlerFunc
+	method      string
+	target      string
+	contentType string
+	payload     io.Reader
+	context     context.Context
 
 	recorder *httptest.ResponseRecorder
 
@@ -47,6 +48,9 @@ func (e *Expectation) performRequest() {
 	req := httptest.NewRequest(e.method, e.target, e.payload)
 	if e.context != nil {
 		req = req.WithContext(e.context)
+	}
+	if e.contentType != "" {
+		req.Header.Add("Content-Type", e.contentType)
 	}
 	e.recorder = httptest.NewRecorder()
 	e.handler.ServeHTTP(e.recorder, req)
