@@ -11,6 +11,22 @@ import (
 	"go.pr0ger.dev/x/httpexpect"
 )
 
+func TestExpectation_WithExtraHeader(t *testing.T) {
+	called := false
+	stubHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		header := r.Header.Get("X-Extra-Header")
+		require.Equal(t, "value", header)
+
+		called = true
+	})
+
+	_ = httpexpect.Post(&testing.T{}, stubHandler).
+		WithExtraHeader("X-Extra-Header", "value").
+		Status(http.StatusOK)
+
+	assert.True(t, called)
+}
+
 func TestExpectationBuilder_WithoutBody(t *testing.T) {
 	called := false
 	stubHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

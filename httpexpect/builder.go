@@ -26,6 +26,12 @@ func (e Expectation) WithQuery(query string) Expectation {
 	return e
 }
 
+func (e Expectation) WithExtraHeader(key, value string) Expectation {
+	e.extraHeaders[key] = append(e.extraHeaders[key], value)
+
+	return e
+}
+
 func (e Expectation) WithoutBody() Expectation {
 	if e.recorder != nil {
 		panic("handler is already invoked")
