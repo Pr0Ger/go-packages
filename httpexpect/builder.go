@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"net/http"
 )
 
 func (e Expectation) WithContext(ctx context.Context) Expectation {
@@ -12,6 +13,16 @@ func (e Expectation) WithContext(ctx context.Context) Expectation {
 	}
 
 	e.context = ctx
+
+	return e
+}
+
+func (e Expectation) WithMiddlewares(middlewares ...func(http.Handler) http.Handler) Expectation {
+	if e.recorder != nil {
+		panic("handler is already invoked")
+	}
+
+	e.middlewares = append(e.middlewares, middlewares...)
 
 	return e
 }

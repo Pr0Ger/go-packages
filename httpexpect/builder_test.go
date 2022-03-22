@@ -11,6 +11,25 @@ import (
 	"go.pr0ger.dev/x/httpexpect"
 )
 
+func TestExpectation_WithMiddlewares(t *testing.T) {
+	calledMiddleware, calledHandler := false, false
+	stubHandler := http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+		calledHandler = true
+	})
+
+	_ = httpexpect.Post(&testing.T{}, stubHandler).
+		WithMiddlewares(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				calledMiddleware = true
+				next.ServeHTTP(w, r)
+			})
+		}).
+		Status(http.StatusOK)
+
+	assert.True(t, calledMiddleware)
+	assert.True(t, calledHandler)
+}
+
 func TestExpectation_WithExtraHeader(t *testing.T) {
 	called := false
 	stubHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

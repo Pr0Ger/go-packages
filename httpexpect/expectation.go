@@ -16,6 +16,7 @@ type TestingT interface {
 type Expectation struct {
 	t            TestingT
 	handler      http.HandlerFunc
+	middlewares  []func(http.Handler) http.Handler
 	method       string
 	target       string
 	contentType  string
@@ -60,7 +61,17 @@ func (e *Expectation) performRequest() {
 		}
 	}
 	e.recorder = httptest.NewRecorder()
-	e.handler.ServeHTTP(e.recorder, req)
+
+	if len(e.middlewares) == 0 {
+		e.handler.ServeHTTP(e.recorder, req)
+	} else {
+		h := e.middlewares[len(e.middlewares)-1](e.handler)
+		for i := len(e.middlewares) - 2; i >= 0; i-- {
+			h = e.middlewares[i](h)
+		}
+
+		h.ServeHTTP(e.recorder, req)
+	}
 }
 
 func (e Expectation) Require() Expectation {
