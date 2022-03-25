@@ -77,3 +77,19 @@ func (e Expectation) Status(status int) Expectation {
 
 	return e
 }
+
+func (e Expectation) Header(key string) *JSONArray {
+	e.t.Helper()
+	e.performRequest()
+
+	values := make([]interface{}, 0)
+	for _, value := range e.recorder.Header().Values(key) {
+		values = append(values, value)
+	}
+
+	return &JSONArray{
+		expectation: &e,
+		path:        fmt.Sprintf("header.%s", key),
+		value:       values,
+	}
+}
