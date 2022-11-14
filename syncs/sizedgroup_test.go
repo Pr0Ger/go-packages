@@ -84,3 +84,18 @@ func TestSizedGroup_CancellationWhileWaiting(t *testing.T) {
 	swg.Wait()
 	assert.Equal(t, c, int32(10), "only 10 goroutines should be executed")
 }
+
+func TestSizedGroupWithPreLock(t *testing.T) {
+	swg := NewSizedGroup(context.TODO(), 10, WithPreLock)
+	var c uint32
+
+	for i := 0; i < 100; i++ {
+		swg.Go(func(ctx context.Context) {
+			time.Sleep(5 * time.Millisecond)
+			atomic.AddUint32(&c, 1)
+		})
+	}
+	assert.True(t, runtime.NumGoroutine() < 15, "goroutines %d", runtime.NumGoroutine())
+	swg.Wait()
+	assert.Equal(t, c, uint32(100), fmt.Sprintf("%d, not all routines have been executed", c))
+}
