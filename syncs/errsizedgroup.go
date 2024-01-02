@@ -12,14 +12,14 @@ import (
 type ErrSizedGroup struct {
 	options
 
-	ctx context.Context
+	ctx context.Context //nolint: containedctx
 
 	err *multierror
 	sem *semaphore.Weighted
 	wg  sync.WaitGroup
 }
 
-// NewErrSizedGroup makes wait group with limited size of alive goroutines
+// NewErrSizedGroup makes wait group with limited size of alive goroutines.
 func NewErrSizedGroup(ctx context.Context, size int64, opts ...GroupOption) *ErrSizedGroup {
 	options := options{}
 	for _, opt := range opts {
@@ -35,7 +35,7 @@ func NewErrSizedGroup(ctx context.Context, size int64, opts ...GroupOption) *Err
 }
 
 // Go calls the given function in a new goroutine.
-// Every call will be unblocked, but some goroutines may wait
+// Every call will be unblocked, but some goroutines may wait.
 func (g *ErrSizedGroup) Go(fn func(ctx context.Context) error) {
 	g.wg.Add(1)
 
@@ -61,7 +61,7 @@ func (g *ErrSizedGroup) Go(fn func(ctx context.Context) error) {
 	}()
 }
 
-// Wait blocks until all function calls from the Go method have returned
+// Wait blocks until all function calls from the Go method have returned.
 func (g *ErrSizedGroup) Wait() error {
 	g.wg.Wait()
 

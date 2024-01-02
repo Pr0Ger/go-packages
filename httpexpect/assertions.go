@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func (e Expectation) JSONArray() *JSONArray {
+func (e *Expectation) JSONArray() *JSONArray {
 	e.t.Helper()
 	e.performRequest()
 
@@ -18,7 +18,7 @@ func (e Expectation) JSONArray() *JSONArray {
 
 	if obj, ok := value.(JSONArrayType); ok {
 		return &JSONArray{
-			expectation: &e,
+			expectation: e,
 			path:        ".",
 			value:       obj,
 		}
@@ -28,7 +28,7 @@ func (e Expectation) JSONArray() *JSONArray {
 	return nil
 }
 
-func (e Expectation) JSONObject() *JSONObject {
+func (e *Expectation) JSONObject() *JSONObject {
 	e.t.Helper()
 	e.performRequest()
 
@@ -40,7 +40,7 @@ func (e Expectation) JSONObject() *JSONObject {
 
 	if obj, ok := value.(JSONObjectType); ok {
 		return &JSONObject{
-			expectation: &e,
+			expectation: e,
 			path:        ".",
 			value:       obj,
 		}
@@ -50,7 +50,7 @@ func (e Expectation) JSONObject() *JSONObject {
 	return nil
 }
 
-func (e Expectation) NoContent() Expectation {
+func (e *Expectation) NoContent() *Expectation {
 	e.t.Helper()
 	e.performRequest()
 
@@ -61,7 +61,7 @@ func (e Expectation) NoContent() Expectation {
 	return e
 }
 
-func (e Expectation) Status(status int) Expectation {
+func (e *Expectation) Status(status int) *Expectation {
 	e.t.Helper()
 	e.performRequest()
 
@@ -78,7 +78,7 @@ func (e Expectation) Status(status int) Expectation {
 	return e
 }
 
-func (e Expectation) Header(key string) *JSONArray {
+func (e *Expectation) Header(key string) *JSONArray {
 	e.t.Helper()
 	e.performRequest()
 
@@ -88,7 +88,7 @@ func (e Expectation) Header(key string) *JSONArray {
 	}
 
 	return &JSONArray{
-		expectation: &e,
+		expectation: e,
 		path:        fmt.Sprintf("header.%s", key),
 		value:       values,
 	}

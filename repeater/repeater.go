@@ -25,7 +25,7 @@ func (r Repeater) Do(ctx context.Context, fn func(context.Context) error) error 
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return ctx.Err() //nolint:wrapcheck
 		case _, ok := <-ch:
 			if !ok {
 				return err

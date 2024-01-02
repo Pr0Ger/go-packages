@@ -11,7 +11,7 @@ type JSONObjectSuite struct {
 	JSONValueSuite
 }
 
-func (s JSONObjectSuite) TestNotExists() {
+func (s *JSONObjectSuite) TestNotExists() {
 	s.t.EXPECT().Errorf(gomock.Eq(`key "%s" do not exists`), "key").MinTimes(6)
 	s.t.EXPECT().FailNow().MinTimes(1)
 
@@ -28,7 +28,7 @@ func (s JSONObjectSuite) TestNotExists() {
 	obj.Null("key")
 }
 
-func (s JSONObjectSuite) TestInvalidType() {
+func (s *JSONObjectSuite) TestInvalidType() {
 	s.t.EXPECT().FailNow().MinTimes(1)
 	s.t.EXPECT().Errorf(gomock.Eq(`key "%s" is not an number`), "not_number")
 	s.t.EXPECT().Errorf(gomock.Eq(`key "%s" is not a string`), "not_string")
@@ -57,7 +57,7 @@ func (s JSONObjectSuite) TestInvalidType() {
 	obj.Null("not_null")
 }
 
-func (s JSONObjectSuite) TestHasKey() {
+func (s *JSONObjectSuite) TestHasKey() {
 	s.t.EXPECT().Errorf(gomock.Eq(`key "%s" do not exists`), "not_key").MaxTimes(1)
 
 	obj := JSONObject{
@@ -71,7 +71,7 @@ func (s JSONObjectSuite) TestHasKey() {
 	obj.HasKey("not_key")
 }
 
-func (s JSONObjectSuite) TestNumber() {
+func (s *JSONObjectSuite) TestNumber() {
 	obj := JSONObject{
 		expectation: s.expectation,
 		value: JSONObjectType{
@@ -82,7 +82,7 @@ func (s JSONObjectSuite) TestNumber() {
 	s.NotNil(obj.Number("number"))
 }
 
-func (s JSONObjectSuite) TestString() {
+func (s *JSONObjectSuite) TestString() {
 	obj := JSONObject{
 		expectation: s.expectation,
 		value: JSONObjectType{
@@ -93,7 +93,7 @@ func (s JSONObjectSuite) TestString() {
 	s.NotNil(obj.String("string"))
 }
 
-func (s JSONObjectSuite) TestBool() {
+func (s *JSONObjectSuite) TestBool() {
 	obj := JSONObject{
 		expectation: s.expectation,
 		value: JSONObjectType{
@@ -104,7 +104,7 @@ func (s JSONObjectSuite) TestBool() {
 	s.NotNil(obj.Bool("bool"))
 }
 
-func (s JSONObjectSuite) TestArray() {
+func (s *JSONObjectSuite) TestArray() {
 	obj := JSONObject{
 		expectation: s.expectation,
 		value: JSONObjectType{
@@ -115,7 +115,7 @@ func (s JSONObjectSuite) TestArray() {
 	s.NotNil(obj.Array("array"))
 }
 
-func (s JSONObjectSuite) TestObject() {
+func (s *JSONObjectSuite) TestObject() {
 	obj := JSONObject{
 		expectation: s.expectation,
 		value: JSONObjectType{
@@ -126,7 +126,7 @@ func (s JSONObjectSuite) TestObject() {
 	s.NotNil(obj.Object("nested_obj"))
 }
 
-func (s JSONObjectSuite) TestNull() {
+func (s *JSONObjectSuite) TestNull() {
 	obj := JSONObject{
 		expectation: s.expectation,
 		value: JSONObjectType{

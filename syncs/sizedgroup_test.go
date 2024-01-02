@@ -21,9 +21,9 @@ func TestSizedGroup(t *testing.T) {
 			atomic.AddUint32(&c, 1)
 		})
 	}
-	assert.True(t, runtime.NumGoroutine() > 50, "goroutines %d", runtime.NumGoroutine())
+	assert.Greaterf(t, runtime.NumGoroutine(), 50, "goroutines %d", runtime.NumGoroutine())
 	swg.Wait()
-	assert.Equal(t, c, uint32(100), fmt.Sprintf("%d, not all routines have been executed", c))
+	assert.EqualValues(t, 100, c, fmt.Sprintf("%d, not all routines have been executed", c))
 }
 
 func TestSizedGroupMaxLimit(t *testing.T) {
@@ -82,7 +82,7 @@ func TestSizedGroup_CancellationWhileWaiting(t *testing.T) {
 		})
 	}
 	swg.Wait()
-	assert.Equal(t, c, int32(10), "only 10 goroutines should be executed")
+	assert.EqualValues(t, 10, c, "only 10 goroutines should be executed")
 }
 
 func TestSizedGroupWithPreLock(t *testing.T) {
@@ -95,7 +95,7 @@ func TestSizedGroupWithPreLock(t *testing.T) {
 			atomic.AddUint32(&c, 1)
 		})
 	}
-	assert.True(t, runtime.NumGoroutine() < 15, "goroutines %d", runtime.NumGoroutine())
+	assert.Less(t, runtime.NumGoroutine(), 15, "goroutines %d", runtime.NumGoroutine())
 	swg.Wait()
-	assert.Equal(t, c, uint32(100), fmt.Sprintf("%d, not all routines have been executed", c))
+	assert.EqualValues(t, 100, c, fmt.Sprintf("%d, not all routines have been executed", c))
 }

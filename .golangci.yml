@@ -1,31 +1,90 @@
 linters:
   presets:
-  - bugs
-  - complexity
-  - format
-  - performance
-  - style
+  - bugs        # bugs detection
+  - comment     # comments analysis
+  - complexity  # code complexity analysis
+  - error       # error handling analysis
+  - format      # code formatting
+  # - import    # imports analysis
+  - metalinter  # linter that contains multiple rules or multiple linters
+  #  - module   # Go modules analysis
+  - performance # performance
+  - sql         # SQL
+  # - style     # coding style
+  # - test      # the analysis of the code of the tests
   - unused
+  enable:
+  # module; depguard & gomodguard is useless in almost any project
+  - gomoddirectives
+  # style preset
+  - asciicheck
+  - containedctx
+  - dogsled
+  - dupl
+  - errname
+  - forcetypeassert
+  - gochecknoglobals
+  - gochecknoinits
+  - goconst
+  - godox
+  - goprintffuncname
+  - gosimple
+  - lll
+  - makezero
+  - nakedret
+  - nolintlint
+  - nosprintfhostport
+  - predeclared
+  - promlinter
+  - stylecheck
+  - tagliatelle
+  - thelper
+  - tparallel
+  - unconvert
+  - whitespace
+  - wastedassign
   disable:
-  - depguard # usually "don't use this lib" can be solved via code reviews
-  - funlen # functions can be long but simple
-  - godot # looks buggy right now
-  - gomnd # magic numbers sometimes not magic at all
-  - gomodguard # same as depguard
-  - testpackage # sometimes doesn't work as expected
-  - wsl # this rules is usually only annoys you
+  # bugs
+  - scopelint   # deprecated and superseded by exportloopref
+  # performance
+  - maligned    # deprecated and superseded by govet(fieldalignment)
+  # unused
+  - deadcode     # deprecated and superseded by unused
+  - structcheck  # deprecated and superseded by unused
+  - varcheck     # deprecated and superseded by unused
 linters-settings:
   dogsled:
     max-blank-identifiers: 3
   errcheck:
     exclude: .errcheck_excludes.txt
+  errorlint:
+    errorf: true
+  funlen:
+    lines: 100
+    statements: 60
+  gci:
+    sections:
+    - standard
+    - default
+    - prefix(go.pr0ger.dev/x)
+  godot:
+    scope: declarations
+  goimports:
+    local-prefixes: go.pr0ger.dev/x
+  gomoddirectives:
+    replace-local: true
+    retract-allow-no-explanation: false
   lll:
     tab-width: 4
-  nolintlint:
-    allow-leading-space: false
 issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
   exclude-rules:
   - path: _test\.go
     linters:
+    - dupl
     - goerr113
-    - scopelint
+    - forcetypeassert
+  - text: "weak random number generator"
+    linters:
+    - gosec

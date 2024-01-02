@@ -53,7 +53,7 @@ func (s *TestStrategySuite) repeatRunner(fn func(t assert.TestingT) bool) {
 	}
 }
 
-func (s TestStrategySuite) TestExponentialBackoff() {
+func (s *TestStrategySuite) TestExponentialBackoff() {
 	// tick   delay  total
 	//    1   0.000  0.000
 	//    2   0.100  0.100
@@ -81,7 +81,6 @@ func (s TestStrategySuite) TestExponentialBackoff() {
 				result = result &&
 					assert.Greater(t, duration, expectedDelay-time.Millisecond, "too fast") &&
 					assert.Less(t, duration, expectedDelay+5*time.Millisecond, "too slow")
-
 			}
 			now = time.Now()
 
@@ -94,7 +93,7 @@ func (s TestStrategySuite) TestExponentialBackoff() {
 	})
 }
 
-func (s TestStrategySuite) TestExponentialBackoffWithRandomization() {
+func (s *TestStrategySuite) TestExponentialBackoffWithRandomization() {
 	// tick		delay 	randomized delay	total
 	//    1   	0.000   0.000               0.000
 	//    2  	0.100   0.050-0.150         >=0.050, <= 0.150
@@ -136,7 +135,7 @@ func (s TestStrategySuite) TestExponentialBackoffWithRandomization() {
 	})
 }
 
-func (s TestStrategySuite) TestExponentialBackoffCancellation() {
+func (s *TestStrategySuite) TestExponentialBackoffCancellation() {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
 	defer cancel()
 
@@ -149,7 +148,7 @@ func (s TestStrategySuite) TestExponentialBackoffCancellation() {
 	s.Less(count, 10, "channel should be closed before all elements emitted")
 }
 
-func (s TestStrategySuite) TestFixedDelay() {
+func (s *TestStrategySuite) TestFixedDelay() {
 	s.repeatRunner(func(t assert.TestingT) bool {
 		result := true
 		var now time.Time
@@ -174,7 +173,7 @@ func (s TestStrategySuite) TestFixedDelay() {
 	})
 }
 
-func (s TestStrategySuite) TestFixedDelayCancellation() {
+func (s *TestStrategySuite) TestFixedDelayCancellation() {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
 	defer cancel()
 
@@ -187,7 +186,7 @@ func (s TestStrategySuite) TestFixedDelayCancellation() {
 	s.Less(count, 10, "channel should be closed before all elements emitted")
 }
 
-func (s TestStrategySuite) TestOnce() {
+func (s *TestStrategySuite) TestOnce() {
 	ch := Once().Start(context.Background())
 
 	count := 0

@@ -1,7 +1,7 @@
 package httpexpect_test
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -49,9 +49,9 @@ func TestExpectation_WithExtraHeader(t *testing.T) {
 func TestExpectationBuilder_WithoutBody(t *testing.T) {
 	called := false
 	stubHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp, err := ioutil.ReadAll(r.Body)
+		resp, err := io.ReadAll(r.Body)
 		require.NoError(t, err)
-		require.Len(t, resp, 0)
+		require.Empty(t, resp)
 
 		called = true
 	})
@@ -66,7 +66,7 @@ func TestExpectationBuilder_WithPlainText(t *testing.T) {
 
 	called := false
 	stubHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp, err := ioutil.ReadAll(r.Body)
+		resp, err := io.ReadAll(r.Body)
 		require.NoError(t, err)
 		require.Equal(t, payload, resp)
 
@@ -92,7 +92,7 @@ func TestExpectationBuilder_WithJSON(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			called := false
 			stubHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				resp, err := ioutil.ReadAll(r.Body)
+				resp, err := io.ReadAll(r.Body)
 				require.NoError(t, err)
 				require.Equal(t, tt.serialized, resp)
 

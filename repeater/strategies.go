@@ -60,8 +60,7 @@ func (s fixedDelay) Start(ctx context.Context) <-chan struct{} {
 	return ch
 }
 
-type once struct {
-}
+type once struct{}
 
 func (once) Start(context.Context) <-chan struct{} {
 	ch := make(chan struct{})

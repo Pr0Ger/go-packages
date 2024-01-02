@@ -11,7 +11,7 @@ type JSONNumberSuite struct {
 	JSONValueSuite
 }
 
-func (s JSONNumberSuite) TestValue() {
+func (s *JSONNumberSuite) TestValue() {
 	s.t.EXPECT().Errorf(gomock.Any(), gomock.Any()).MaxTimes(0)
 
 	val := JSONNumber{
@@ -20,10 +20,10 @@ func (s JSONNumberSuite) TestValue() {
 		value:       float64(1337),
 	}
 
-	s.Equal(float64(1337), val.Value())
+	s.InEpsilon(float64(1337), val.Value(), 0.0001)
 }
 
-func (s JSONNumberSuite) TestEqual() {
+func (s *JSONNumberSuite) TestEqual() {
 	s.t.EXPECT().Errorf(
 		gomock.Eq(`key "%s" is not equal %f. Actual value %f`),
 		gomock.Eq(".key"),
@@ -41,7 +41,7 @@ func (s JSONNumberSuite) TestEqual() {
 	val.Equal(1000)
 }
 
-func (s JSONNumberSuite) TestEqualDelta() {
+func (s *JSONNumberSuite) TestEqualDelta() {
 	s.t.EXPECT().Errorf(
 		gomock.Eq(`key "%s" is not equal %f ± %f. Actual value %f`),
 		gomock.Eq(".key"),
@@ -69,7 +69,7 @@ type JSONStringSuite struct {
 	JSONValueSuite
 }
 
-func (s JSONStringSuite) TestValue() {
+func (s *JSONStringSuite) TestValue() {
 	s.t.EXPECT().Errorf(gomock.Any(), gomock.Any()).MaxTimes(0)
 
 	val := JSONString{
@@ -81,7 +81,7 @@ func (s JSONStringSuite) TestValue() {
 	s.Equal("test", val.Value())
 }
 
-func (s JSONStringSuite) TestEqual() {
+func (s *JSONStringSuite) TestEqual() {
 	s.t.EXPECT().Errorf(
 		gomock.Eq(`key "%s" is not equal "%s". Actual value "%s"`),
 		gomock.Eq(".key"),
@@ -99,7 +99,7 @@ func (s JSONStringSuite) TestEqual() {
 	val.Equal("not-test")
 }
 
-func (s JSONStringSuite) TestLen() {
+func (s *JSONStringSuite) TestLen() {
 	s.t.EXPECT().Errorf(gomock.Any(), gomock.Any()).MaxTimes(0)
 
 	val := JSONString{
@@ -111,7 +111,7 @@ func (s JSONStringSuite) TestLen() {
 	s.EqualValues(4, val.Len().Value())
 }
 
-func (s JSONStringSuite) TestHasPrefix() {
+func (s *JSONStringSuite) TestHasPrefix() {
 	s.t.EXPECT().Errorf(
 		gomock.Eq(`key "%s" doesn't have prefix "%s""`),
 		gomock.Eq(".key"),
@@ -128,7 +128,7 @@ func (s JSONStringSuite) TestHasPrefix() {
 	val.HasPrefix("bar")
 }
 
-func (s JSONStringSuite) TestHasSuffix() {
+func (s *JSONStringSuite) TestHasSuffix() {
 	s.t.EXPECT().Errorf(
 		gomock.Eq(`key "%s" doesn't have suffix "%s""`),
 		gomock.Eq(".key"),
@@ -153,7 +153,7 @@ type JSONBoolSuite struct {
 	JSONValueSuite
 }
 
-func (s JSONBoolSuite) TestValue() {
+func (s *JSONBoolSuite) TestValue() {
 	s.t.EXPECT().Errorf(gomock.Any(), gomock.Any()).MaxTimes(0)
 
 	val := JSONBool{
@@ -162,10 +162,10 @@ func (s JSONBoolSuite) TestValue() {
 		value:       true,
 	}
 
-	s.Equal(true, val.Value())
+	s.True(val.Value())
 }
 
-func (s JSONBoolSuite) TestEqual() {
+func (s *JSONBoolSuite) TestEqual() {
 	s.t.EXPECT().Errorf(gomock.Any(), gomock.Any()).MaxTimes(0)
 
 	val := JSONBool{
@@ -177,7 +177,7 @@ func (s JSONBoolSuite) TestEqual() {
 	val.Equal(false)
 }
 
-func (s JSONBoolSuite) TestHelpers() {
+func (s *JSONBoolSuite) TestHelpers() {
 	s.t.EXPECT().Errorf(`key "%s" is not equal %t`, ".key", false)
 
 	val := JSONBool{

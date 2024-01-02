@@ -12,13 +12,13 @@ import (
 type SizedGroup struct {
 	options
 
-	ctx context.Context
+	ctx context.Context //nolint:containedctx
 
 	sem *semaphore.Weighted
 	wg  sync.WaitGroup
 }
 
-// NewSizedGroup makes wait group with limited size of alive goroutines
+// NewSizedGroup makes wait group with limited size of alive goroutines.
 func NewSizedGroup(ctx context.Context, size int64, opts ...GroupOption) *SizedGroup {
 	options := options{}
 	for _, opt := range opts {
@@ -33,7 +33,7 @@ func NewSizedGroup(ctx context.Context, size int64, opts ...GroupOption) *SizedG
 }
 
 // Go calls the given function in a new goroutine.
-// Every call will be unblocked, but some goroutines may wait
+// Every call will be unblocked, but some goroutines may wait.
 func (g *SizedGroup) Go(fn func(ctx context.Context)) {
 	g.wg.Add(1)
 
@@ -57,7 +57,7 @@ func (g *SizedGroup) Go(fn func(ctx context.Context)) {
 	}()
 }
 
-// Wait blocks until all function calls from the Go method have returned
+// Wait blocks until all function calls from the Go method have returned.
 func (g *SizedGroup) Wait() {
 	g.wg.Wait()
 }

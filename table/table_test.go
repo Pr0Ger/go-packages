@@ -8,12 +8,12 @@ import (
 )
 
 func TestTable(t *testing.T) {
-	var tests = []struct {
-		create func(t testing.TB) *Table
+	tests := []struct {
+		create func() *Table
 		output string
 	}{
 		{
-			func(t testing.TB) *Table {
+			func() *Table {
 				tb := &Table{}
 				tb.AddColumn("ID", "{{ .ID }}")
 				tb.AddColumn("Name", "{{ .Name }}")
@@ -29,7 +29,7 @@ func TestTable(t *testing.T) {
 `,
 		},
 		{
-			func(t testing.TB) *Table {
+			func() *Table {
 				tb := &Table{}
 				tb.AddColumn("ID", "{{ .ID }}")
 				tb.AddColumn("Name", "{{ .Name }}")
@@ -48,7 +48,7 @@ func TestTable(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run("", func(t *testing.T) {
-			table := test.create(t)
+			table := test.create()
 			want := strings.TrimLeft(test.output, "\n")
 			assert.Equal(t, want, table.String())
 		})

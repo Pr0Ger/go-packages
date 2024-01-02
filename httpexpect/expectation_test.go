@@ -11,7 +11,7 @@ import (
 
 func TestMethod(t *testing.T) {
 	tests := []struct {
-		builderFunc func(t httpexpect.TestingT, handler http.HandlerFunc) httpexpect.Expectation
+		builderFunc func(t httpexpect.TestingT, handler http.HandlerFunc) *httpexpect.Expectation
 		method      string
 	}{
 		{httpexpect.Get, http.MethodGet},

@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func (e Expectation) WithContext(ctx context.Context) Expectation {
+func (e *Expectation) WithContext(ctx context.Context) *Expectation {
 	if e.recorder != nil {
 		panic("handler is already invoked")
 	}
@@ -17,7 +17,7 @@ func (e Expectation) WithContext(ctx context.Context) Expectation {
 	return e
 }
 
-func (e Expectation) WithMiddlewares(middlewares ...func(http.Handler) http.Handler) Expectation {
+func (e *Expectation) WithMiddlewares(middlewares ...func(http.Handler) http.Handler) *Expectation {
 	if e.recorder != nil {
 		panic("handler is already invoked")
 	}
@@ -27,7 +27,7 @@ func (e Expectation) WithMiddlewares(middlewares ...func(http.Handler) http.Hand
 	return e
 }
 
-func (e Expectation) WithQuery(query string) Expectation {
+func (e *Expectation) WithQuery(query string) *Expectation {
 	if e.recorder != nil {
 		panic("handler is already invoked")
 	}
@@ -37,13 +37,13 @@ func (e Expectation) WithQuery(query string) Expectation {
 	return e
 }
 
-func (e Expectation) WithExtraHeader(key, value string) Expectation {
+func (e *Expectation) WithExtraHeader(key, value string) *Expectation {
 	e.extraHeaders[key] = append(e.extraHeaders[key], value)
 
 	return e
 }
 
-func (e Expectation) WithoutBody() Expectation {
+func (e *Expectation) WithoutBody() *Expectation {
 	if e.recorder != nil {
 		panic("handler is already invoked")
 	}
@@ -51,7 +51,7 @@ func (e Expectation) WithoutBody() Expectation {
 	return e
 }
 
-func (e Expectation) WithPlainText(data []byte) Expectation {
+func (e *Expectation) WithPlainText(data []byte) *Expectation {
 	if e.recorder != nil {
 		panic("handler is already invoked")
 	}
@@ -62,7 +62,7 @@ func (e Expectation) WithPlainText(data []byte) Expectation {
 	return e
 }
 
-func (e Expectation) WithJSON(data interface{}) Expectation {
+func (e *Expectation) WithJSON(data any) *Expectation {
 	if e.recorder != nil {
 		panic("handler is already invoked")
 	}

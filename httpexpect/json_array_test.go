@@ -11,7 +11,7 @@ type JSONArraySuite struct {
 	JSONValueSuite
 }
 
-func (s JSONArraySuite) TestOutOfBounds() {
+func (s *JSONArraySuite) TestOutOfBounds() {
 	s.t.EXPECT().Errorf(gomock.Eq(`index %d is out of bounds (len=%d)`), 0, 0).MinTimes(6)
 	s.t.EXPECT().FailNow().MinTimes(1)
 
@@ -28,7 +28,7 @@ func (s JSONArraySuite) TestOutOfBounds() {
 	obj.Null(0)
 }
 
-func (s JSONArraySuite) TestInvalidType() {
+func (s *JSONArraySuite) TestInvalidType() {
 	s.t.EXPECT().FailNow().MinTimes(1)
 	s.t.EXPECT().Errorf(gomock.Eq(`element at %d is not a number`), 0)
 	s.t.EXPECT().Errorf(gomock.Eq(`element at %d is not a string`), 1)
@@ -57,7 +57,7 @@ func (s JSONArraySuite) TestInvalidType() {
 	obj.Null(5)
 }
 
-func (s JSONArraySuite) TestLen() {
+func (s *JSONArraySuite) TestLen() {
 	obj := JSONArray{
 		expectation: s.expectation,
 		value: JSONArrayType{
@@ -69,7 +69,7 @@ func (s JSONArraySuite) TestLen() {
 	s.EqualValues(1, arrLen.Value())
 }
 
-func (s JSONArraySuite) TestNumber() {
+func (s *JSONArraySuite) TestNumber() {
 	array := JSONArray{
 		expectation: s.expectation,
 		value: JSONArrayType{
@@ -80,7 +80,7 @@ func (s JSONArraySuite) TestNumber() {
 	s.NotNil(array.Number(0))
 }
 
-func (s JSONArraySuite) TestString() {
+func (s *JSONArraySuite) TestString() {
 	array := JSONArray{
 		expectation: s.expectation,
 		value: JSONArrayType{
@@ -91,7 +91,7 @@ func (s JSONArraySuite) TestString() {
 	s.NotNil(array.String(0))
 }
 
-func (s JSONArraySuite) TestBool() {
+func (s *JSONArraySuite) TestBool() {
 	array := JSONArray{
 		expectation: s.expectation,
 		value: JSONArrayType{
@@ -102,7 +102,7 @@ func (s JSONArraySuite) TestBool() {
 	s.NotNil(array.Bool(0))
 }
 
-func (s JSONArraySuite) TestArray() {
+func (s *JSONArraySuite) TestArray() {
 	array := JSONArray{
 		expectation: s.expectation,
 		value: JSONArrayType{
@@ -113,7 +113,7 @@ func (s JSONArraySuite) TestArray() {
 	s.NotNil(array.Array(0))
 }
 
-func (s JSONArraySuite) TestObject() {
+func (s *JSONArraySuite) TestObject() {
 	array := JSONArray{
 		expectation: s.expectation,
 		value: JSONArrayType{
@@ -124,7 +124,7 @@ func (s JSONArraySuite) TestObject() {
 	s.NotNil(array.Object(0))
 }
 
-func (s JSONArraySuite) TestNull() {
+func (s *JSONArraySuite) TestNull() {
 	array := JSONArray{
 		expectation: s.expectation,
 		value: JSONArrayType{

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestErrSizedGroup(t *testing.T) {
@@ -22,9 +23,9 @@ func TestErrSizedGroup(t *testing.T) {
 			return nil
 		})
 	}
-	assert.True(t, runtime.NumGoroutine() > 50, "goroutines %d", runtime.NumGoroutine())
-	assert.NoError(t, swg.Wait())
-	assert.Equal(t, c, uint32(100), fmt.Sprintf("%d, not all routines have been executed", c))
+	assert.Greaterf(t, runtime.NumGoroutine(), 50, "goroutines %d", runtime.NumGoroutine())
+	require.NoError(t, swg.Wait())
+	assert.EqualValues(t, 100, c, fmt.Sprintf("%d, not all routines have been executed", c))
 }
 
 func TestErrSizedGroupMaxLimit(t *testing.T) {
@@ -43,7 +44,7 @@ func TestErrSizedGroupMaxLimit(t *testing.T) {
 			return nil
 		})
 	}
-	assert.NoError(t, swg.Wait())
+	require.NoError(t, swg.Wait())
 }
 
 func TestErrSizedGroup_Cancellation(t *testing.T) {
@@ -65,7 +66,7 @@ func TestErrSizedGroup_Cancellation(t *testing.T) {
 			return nil
 		})
 	}
-	assert.NoError(t, swg.Wait())
+	require.NoError(t, swg.Wait())
 	assert.Less(t, c, int32(100), "not all goroutines should be executed")
 }
 
@@ -88,8 +89,8 @@ func TestErrSizedGroup_CancellationWhileWaiting(t *testing.T) {
 			return nil
 		})
 	}
-	assert.NoError(t, swg.Wait())
-	assert.Equal(t, c, int32(10), "only 10 goroutines should be executed")
+	require.NoError(t, swg.Wait())
+	assert.EqualValues(t, 10, c, "only 10 goroutines should be executed")
 }
 
 func TestErrSizedGroup_WithErrors(t *testing.T) {
@@ -105,7 +106,7 @@ func TestErrSizedGroup_WithErrors(t *testing.T) {
 		})
 	}
 	err := swg.Wait()
-	assert.EqualError(t, err, "multierror: 1 errors: [0] error")
+	require.EqualError(t, err, "multierror: 1 errors: [0] error")
 }
 
 func TestErrSizedGroupWithPreLock(t *testing.T) {
@@ -119,7 +120,7 @@ func TestErrSizedGroupWithPreLock(t *testing.T) {
 			return nil
 		})
 	}
-	assert.True(t, runtime.NumGoroutine() < 15, "goroutines %d", runtime.NumGoroutine())
-	assert.NoError(t, swg.Wait())
-	assert.Equal(t, c, uint32(100), fmt.Sprintf("%d, not all routines have been executed", c))
+	assert.Less(t, runtime.NumGoroutine(), 15, "goroutines %d", runtime.NumGoroutine())
+	require.NoError(t, swg.Wait())
+	assert.EqualValues(t, 100, c, fmt.Sprintf("%d, not all routines have been executed", c))
 }
