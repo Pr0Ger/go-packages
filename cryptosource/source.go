@@ -25,7 +25,7 @@ func (s source) Int63() int64 {
 		panic("cryptosource error: " + err.Error())
 	}
 
-	return int64(binary.LittleEndian.Uint64(buf[:]) >> 1)
+	return int64(binary.LittleEndian.Uint64(buf[:]) >> 1) //nolint:gosec
 }
 
 // Seed should not be called for cryptosource.

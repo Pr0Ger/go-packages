@@ -2,7 +2,6 @@ package syncs
 
 import (
 	"context"
-	"fmt"
 	"runtime"
 	"sync/atomic"
 	"testing"
@@ -16,14 +15,14 @@ func TestSizedGroup(t *testing.T) {
 	var c uint32
 
 	for i := 0; i < 100; i++ {
-		swg.Go(func(ctx context.Context) {
+		swg.Go(func(context.Context) {
 			time.Sleep(5 * time.Millisecond)
 			atomic.AddUint32(&c, 1)
 		})
 	}
 	assert.Greaterf(t, runtime.NumGoroutine(), 50, "goroutines %d", runtime.NumGoroutine())
 	swg.Wait()
-	assert.EqualValues(t, 100, c, fmt.Sprintf("%d, not all routines have been executed", c))
+	assert.EqualValues(t, 100, c, "%d, not all routines have been executed", c)
 }
 
 func TestSizedGroupMaxLimit(t *testing.T) {
@@ -31,7 +30,7 @@ func TestSizedGroupMaxLimit(t *testing.T) {
 	var c int32
 
 	for i := 0; i < 100; i++ {
-		swg.Go(func(ctx context.Context) {
+		swg.Go(func(context.Context) {
 			atomic.AddInt32(&c, 1)
 			defer atomic.AddInt32(&c, -1)
 
@@ -51,7 +50,7 @@ func TestSizedGroup_Cancellation(t *testing.T) {
 	var c int32
 
 	for i := 0; i < 100; i++ {
-		swg.Go(func(ctx context.Context) {
+		swg.Go(func(context.Context) {
 			select {
 			case <-ctx.Done():
 				return
@@ -72,7 +71,7 @@ func TestSizedGroup_CancellationWhileWaiting(t *testing.T) {
 	var c int32
 
 	for i := 0; i < 100; i++ {
-		swg.Go(func(ctx context.Context) {
+		swg.Go(func(context.Context) {
 			if atomic.LoadInt32(&c) == 10 {
 				cancel()
 			} else {
@@ -90,12 +89,12 @@ func TestSizedGroupWithPreLock(t *testing.T) {
 	var c uint32
 
 	for i := 0; i < 100; i++ {
-		swg.Go(func(ctx context.Context) {
+		swg.Go(func(context.Context) {
 			time.Sleep(5 * time.Millisecond)
 			atomic.AddUint32(&c, 1)
 		})
 	}
 	assert.Less(t, runtime.NumGoroutine(), 15, "goroutines %d", runtime.NumGoroutine())
 	swg.Wait()
-	assert.EqualValues(t, 100, c, fmt.Sprintf("%d, not all routines have been executed", c))
+	assert.EqualValues(t, 100, c, "%d, not all routines have been executed", c)
 }

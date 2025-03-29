@@ -12,10 +12,10 @@ import (
 )
 
 func TestRepeater_Do(t *testing.T) {
-	e := errors.New("error")
+	e := errors.New("error") //nolint:err113
 
 	called := 0
-	fun := func(ctx context.Context) error {
+	fun := func(context.Context) error {
 		called++
 		return e
 	}
@@ -32,10 +32,10 @@ func TestRepeater_Do(t *testing.T) {
 }
 
 func TestRepeater_DoContextCancellation(t *testing.T) {
-	e := errors.New("error")
+	e := errors.New("error") //nolint:err113
 
 	called := 0
-	fun := func(ctx context.Context) error {
+	fun := func(context.Context) error {
 		called++
 		return e
 	}

@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"go.pr0ger.dev/x/httpexpect"
 )
@@ -32,9 +31,9 @@ func TestExpectation_WithMiddlewares(t *testing.T) {
 
 func TestExpectation_WithExtraHeader(t *testing.T) {
 	called := false
-	stubHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	stubHandler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		header := r.Header.Get("X-Extra-Header")
-		require.Equal(t, "value", header)
+		assert.Equal(t, "value", header)
 
 		called = true
 	})
@@ -48,10 +47,10 @@ func TestExpectation_WithExtraHeader(t *testing.T) {
 
 func TestExpectationBuilder_WithoutBody(t *testing.T) {
 	called := false
-	stubHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	stubHandler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		resp, err := io.ReadAll(r.Body)
-		require.NoError(t, err)
-		require.Empty(t, resp)
+		assert.NoError(t, err)
+		assert.Empty(t, resp)
 
 		called = true
 	})
@@ -65,10 +64,10 @@ func TestExpectationBuilder_WithPlainText(t *testing.T) {
 	payload := []byte("test")
 
 	called := false
-	stubHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	stubHandler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		resp, err := io.ReadAll(r.Body)
-		require.NoError(t, err)
-		require.Equal(t, payload, resp)
+		assert.NoError(t, err)
+		assert.Equal(t, payload, resp)
 
 		called = true
 	})
@@ -91,10 +90,10 @@ func TestExpectationBuilder_WithJSON(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			called := false
-			stubHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			stubHandler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 				resp, err := io.ReadAll(r.Body)
-				require.NoError(t, err)
-				require.Equal(t, tt.serialized, resp)
+				assert.NoError(t, err)
+				assert.Equal(t, tt.serialized, resp)
 
 				called = true
 			})

@@ -89,7 +89,7 @@ func (e *Expectation) Header(key string) *JSONArray {
 
 	return &JSONArray{
 		expectation: e,
-		path:        fmt.Sprintf("header.%s", key),
+		path:        "header." + key,
 		value:       values,
 	}
 }

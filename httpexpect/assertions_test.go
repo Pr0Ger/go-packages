@@ -47,7 +47,7 @@ func (suite *TestExpectationSuite) TestJSONObject() {
 
 	httpexpect.Get(suite.t, invalidJSON).JSONObject()
 	httpexpect.Get(suite.t, arrayJSON).JSONObject()
-	suite.EqualValues(1, httpexpect.Get(suite.t, objectJSON).JSONObject().Number("key").Value())
+	suite.InDelta(1, httpexpect.Get(suite.t, objectJSON).JSONObject().Number("key").Value(), 0.0)
 }
 
 func (suite *TestExpectationSuite) TestJSONArray() {
@@ -66,7 +66,7 @@ func (suite *TestExpectationSuite) TestJSONArray() {
 
 	httpexpect.Get(suite.t, invalidJSON).JSONArray()
 	httpexpect.Get(suite.t, objectJSON).JSONArray()
-	suite.EqualValues(3, httpexpect.Get(suite.t, arrayJSON).JSONArray().Len().Value())
+	suite.InDelta(3, httpexpect.Get(suite.t, arrayJSON).JSONArray().Len().Value(), 0.0)
 }
 
 func (suite *TestExpectationSuite) TestNoContent() {

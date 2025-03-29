@@ -1,7 +1,6 @@
 package httpexpect
 
 import (
-	"fmt"
 	"math"
 	"strings"
 )
@@ -49,7 +48,7 @@ func (s *JSONString) Equal(value string) {
 func (s *JSONString) Len() *JSONNumber {
 	return &JSONNumber{
 		expectation: s.expectation,
-		path:        fmt.Sprintf("%s.$len", s.path),
+		path:        s.path + ".$len",
 		value:       float64(len(s.value)),
 	}
 }

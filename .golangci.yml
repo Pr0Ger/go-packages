@@ -18,10 +18,12 @@ linters:
   - gomoddirectives
   # style preset
   - asciicheck
+  - canonicalheader
   - containedctx
   - dogsled
   - dupl
   - errname
+  - exptostd
   - forcetypeassert
   - gochecknoglobals
   - gochecknoinits
@@ -29,6 +31,7 @@ linters:
   - godox
   - goprintffuncname
   - gosimple
+  - iface
   - lll
   - makezero
   - nakedret
@@ -43,20 +46,16 @@ linters:
   - unconvert
   - whitespace
   - wastedassign
-  disable:
-  # bugs
-  - scopelint   # deprecated and superseded by exportloopref
-  # performance
-  - maligned    # deprecated and superseded by govet(fieldalignment)
-  # unused
-  - deadcode     # deprecated and superseded by unused
-  - structcheck  # deprecated and superseded by unused
-  - varcheck     # deprecated and superseded by unused
+  # test preset
+  - usetesting
 linters-settings:
   dogsled:
     max-blank-identifiers: 3
   errcheck:
-    exclude: .errcheck_excludes.txt
+    exclude-functions:
+    - (net/http.ResponseWriter).Write
+    - github.com/go-chi/render.Render
+    - github.com/go-chi/render.RenderList
   errorlint:
     errorf: true
   funlen:
@@ -76,6 +75,14 @@ linters-settings:
     retract-allow-no-explanation: false
   lll:
     tab-width: 4
+  tagalign:
+    sort: false # puts `example` tag before more important tag `json`
+  tagliatelle:
+    case:
+      use-field-name: true
+      rules:
+        json: goSnake
+        yaml: goSnake
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0

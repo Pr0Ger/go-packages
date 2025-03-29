@@ -108,7 +108,7 @@ func (s *JSONStringSuite) TestLen() {
 		value:       "test",
 	}
 
-	s.EqualValues(4, val.Len().Value())
+	s.InDelta(4, val.Len().Value(), 0.0)
 }
 
 func (s *JSONStringSuite) TestHasPrefix() {

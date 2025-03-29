@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"go.pr0ger.dev/x/httpexpect"
@@ -27,7 +28,7 @@ func TestMethod(t *testing.T) {
 		t.Run(tt.method, func(t *testing.T) {
 			called := false
 			stubHandler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
-				require.Equal(t, tt.method, r.Method)
+				assert.Equal(t, tt.method, r.Method)
 				called = true
 			})
 

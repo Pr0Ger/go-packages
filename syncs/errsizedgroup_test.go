@@ -2,7 +2,7 @@ package syncs
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"runtime"
 	"sync/atomic"
 	"testing"
@@ -17,7 +17,7 @@ func TestErrSizedGroup(t *testing.T) {
 	var c uint32
 
 	for i := 0; i < 100; i++ {
-		swg.Go(func(ctx context.Context) error {
+		swg.Go(func(context.Context) error {
 			time.Sleep(5 * time.Millisecond)
 			atomic.AddUint32(&c, 1)
 			return nil
@@ -25,7 +25,7 @@ func TestErrSizedGroup(t *testing.T) {
 	}
 	assert.Greaterf(t, runtime.NumGoroutine(), 50, "goroutines %d", runtime.NumGoroutine())
 	require.NoError(t, swg.Wait())
-	assert.EqualValues(t, 100, c, fmt.Sprintf("%d, not all routines have been executed", c))
+	assert.EqualValues(t, 100, c, "%d, not all routines have been executed", c)
 }
 
 func TestErrSizedGroupMaxLimit(t *testing.T) {
@@ -33,7 +33,7 @@ func TestErrSizedGroupMaxLimit(t *testing.T) {
 	var c int32
 
 	for i := 0; i < 100; i++ {
-		swg.Go(func(ctx context.Context) error {
+		swg.Go(func(context.Context) error {
 			atomic.AddInt32(&c, 1)
 			defer atomic.AddInt32(&c, -1)
 
@@ -78,7 +78,7 @@ func TestErrSizedGroup_CancellationWhileWaiting(t *testing.T) {
 	var c int32
 
 	for i := 0; i < 100; i++ {
-		swg.Go(func(ctx context.Context) error {
+		swg.Go(func(context.Context) error {
 			if atomic.LoadInt32(&c) == 10 {
 				cancel()
 			} else {
@@ -98,9 +98,9 @@ func TestErrSizedGroup_WithErrors(t *testing.T) {
 
 	for i := 0; i < 100; i++ {
 		i := i
-		swg.Go(func(ctx context.Context) error {
+		swg.Go(func(context.Context) error {
 			if i == 50 {
-				return fmt.Errorf("error")
+				return errors.New("error") //nolint:err113
 			}
 			return nil
 		})
@@ -114,7 +114,7 @@ func TestErrSizedGroupWithPreLock(t *testing.T) {
 	var c uint32
 
 	for i := 0; i < 100; i++ {
-		swg.Go(func(ctx context.Context) error {
+		swg.Go(func(context.Context) error {
 			time.Sleep(5 * time.Millisecond)
 			atomic.AddUint32(&c, 1)
 			return nil
@@ -122,5 +122,5 @@ func TestErrSizedGroupWithPreLock(t *testing.T) {
 	}
 	assert.Less(t, runtime.NumGoroutine(), 15, "goroutines %d", runtime.NumGoroutine())
 	require.NoError(t, swg.Wait())
-	assert.EqualValues(t, 100, c, fmt.Sprintf("%d, not all routines have been executed", c))
+	assert.EqualValues(t, 100, c, "%d, not all routines have been executed", c)
 }

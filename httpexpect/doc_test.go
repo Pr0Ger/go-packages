@@ -6,7 +6,7 @@ import (
 )
 
 func ExampleGet() {
-	stubHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	stubHandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write([]byte(`{"bool":  true, "number": 1337, "string":  "str", "object": {}, "array": []}`))
 	})
 

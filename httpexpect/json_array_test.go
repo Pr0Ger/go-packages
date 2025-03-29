@@ -66,7 +66,7 @@ func (s *JSONArraySuite) TestLen() {
 	}
 
 	arrLen := obj.Len()
-	s.EqualValues(1, arrLen.Value())
+	s.InDelta(1, arrLen.Value(), 0.0)
 }
 
 func (s *JSONArraySuite) TestNumber() {

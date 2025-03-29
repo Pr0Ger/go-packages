@@ -16,7 +16,7 @@ type JSONArray struct {
 func (a *JSONArray) Len() *JSONNumber {
 	return &JSONNumber{
 		expectation: a.expectation,
-		path:        fmt.Sprintf("%s.$len", a.path),
+		path:        a.path + ".$len",
 		value:       float64(len(a.value)),
 	}
 }
