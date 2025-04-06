@@ -46,7 +46,6 @@ func TestSource_Uint64(t *testing.T) {
 		}
 		seen[value] = struct{}{}
 
-		assert.GreaterOrEqual(t, value, uint64(0), ">= 0")
 		assert.LessOrEqual(t, value, uint64(math.MaxUint64), "< 2 ** 64")
 	}
 }

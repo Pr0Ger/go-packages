@@ -1,97 +1,161 @@
+version: "2"
+
 linters:
-  presets:
-  - bugs        # bugs detection
-  - comment     # comments analysis
-  - complexity  # code complexity analysis
-  - error       # error handling analysis
-  - format      # code formatting
-  # - import    # imports analysis
-  - metalinter  # linter that contains multiple rules or multiple linters
-  #  - module   # Go modules analysis
-  - performance # performance
-  - sql         # SQL
-  # - style     # coding style
-  # - test      # the analysis of the code of the tests
-  - unused
   enable:
-  # module; depguard & gomodguard is useless in almost any project
-  - gomoddirectives
-  # style preset
+  - asasalint
   - asciicheck
+  - bidichk
+  - bodyclose
   - canonicalheader
   - containedctx
+  - contextcheck
+  - cyclop
   - dogsled
   - dupl
+  - dupword
+  - durationcheck
+  - err113
+  - errchkjson
   - errname
+  - errorlint
+  - exhaustive
   - exptostd
+  - fatcontext
   - forcetypeassert
+  - funlen
+  - gocheckcompilerdirectives
   - gochecknoglobals
   - gochecknoinits
+  - gochecksumtype
+  - gocognit
   - goconst
+  - gocritic
+  - gocyclo
+  - godot
   - godox
+  - gomoddirectives
   - goprintffuncname
-  - gosimple
+  - gosec
+  - gosmopolitan
   - iface
   - lll
+  - loggercheck
+  - maintidx
   - makezero
+  - misspell
+  - musttag
   - nakedret
+  - nestif
+  - nilerr
+  - nilnesserr
+  - noctx
   - nolintlint
   - nosprintfhostport
+  - perfsprint
+  - prealloc
   - predeclared
   - promlinter
-  - stylecheck
+  - protogetter
+  - reassign
+  - recvcheck
+  - revive
+  - rowserrcheck
+  - spancheck
+  - sqlclosecheck
+  - staticcheck
   - tagliatelle
+  - testifylint
   - thelper
   - tparallel
   - unconvert
-  - whitespace
-  - wastedassign
-  # test preset
+  - unparam
+  - usestdlibvars
   - usetesting
-linters-settings:
-  dogsled:
-    max-blank-identifiers: 3
-  errcheck:
-    exclude-functions:
-    - (net/http.ResponseWriter).Write
-    - github.com/go-chi/render.Render
-    - github.com/go-chi/render.RenderList
-  errorlint:
-    errorf: true
-  funlen:
-    lines: 100
-    statements: 60
-  gci:
-    sections:
-    - standard
-    - default
-    - prefix(go.pr0ger.dev/x)
-  godot:
-    scope: declarations
-  goimports:
-    local-prefixes: go.pr0ger.dev/x
-  gomoddirectives:
-    replace-local: true
-    retract-allow-no-explanation: false
-  lll:
-    tab-width: 4
-  tagalign:
-    sort: false # puts `example` tag before more important tag `json`
-  tagliatelle:
-    case:
-      use-field-name: true
-      rules:
-        json: goSnake
-        yaml: goSnake
+  - wastedassign
+  - whitespace
+  - wrapcheck
+  - zerologlint
+  settings:
+    dogsled:
+      max-blank-identifiers: 3
+    errcheck:
+      exclude-functions:
+      - (net/http.ResponseWriter).Write
+      - github.com/go-chi/render.Render
+      - github.com/go-chi/render.RenderList
+    errorlint:
+      errorf: true
+    funlen:
+      lines: 100
+      statements: 60
+    godot:
+      scope: declarations
+    gomoddirectives:
+      replace-local: true
+      retract-allow-no-explanation: false
+    iface:
+      enable:
+      - identical
+      - unused
+    lll:
+      tab-width: 4
+    rowserrcheck:
+      packages:
+      - github.com/jmoiron/sqlx
+    tagalign:
+      sort: false
+    tagliatelle:
+      case:
+        rules:
+          json: goSnake
+          yaml: goSnake
+        use-field-name: true
+  exclusions:
+    generated: lax
+    presets:
+    - comments
+    - common-false-positives
+    - legacy
+    - std-error-handling
+    rules:
+    - linters:
+      - dupl
+      - err113
+      - forcetypeassert
+      path: _test\.go
+    - linters:
+      - gosec
+      text: weak random number generator
+    paths:
+    - third_party$
+    - builtin$
+    - examples$
+
+formatters:
+  enable:
+  - gci
+  - gofmt
+  - gofumpt
+  - goimports
+  - golines
+  settings:
+    gci:
+      sections:
+      - standard
+      - default
+      - prefix(go.pr0ger.dev/x)
+    goimports:
+      local-prefixes:
+      - go.pr0ger.dev/x
+    golines:
+      max-len: 120
+  exclusions:
+    generated: lax
+    paths:
+    - third_party$
+    - builtin$
+    - examples$
+
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude-rules:
-  - path: _test\.go
-    linters:
-    - dupl
-    - goerr113
-    - forcetypeassert
-  - text: "weak random number generator"
-    linters:
-    - gosec

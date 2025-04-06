@@ -100,7 +100,7 @@ func TestErrSizedGroup_WithErrors(t *testing.T) {
 		i := i
 		swg.Go(func(context.Context) error {
 			if i == 50 {
-				return errors.New("error") //nolint:err113
+				return errors.New("error")
 			}
 			return nil
 		})

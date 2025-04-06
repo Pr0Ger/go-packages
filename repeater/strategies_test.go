@@ -87,7 +87,7 @@ func (s *TestStrategySuite) TestExponentialBackoff() {
 			count++
 		}
 		result = result &&
-			assert.EqualValues(t, 5, count, "should emit 5 events")
+			assert.Equal(t, 5, count, "should emit 5 events")
 
 		return result
 	})
