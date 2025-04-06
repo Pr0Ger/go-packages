@@ -1,11 +1,13 @@
 module go.pr0ger.dev/x
 
-go 1.20
+go 1.22
+
+toolchain go1.24.1
 
 require (
-	github.com/golang/mock v1.6.0
-	github.com/stretchr/testify v1.8.4
-	golang.org/x/sync v0.5.0
+	github.com/stretchr/testify v1.9.0
+	go.uber.org/mock v0.5.0
+	golang.org/x/sync v0.7.0
 )
 
 require (
