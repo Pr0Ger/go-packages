@@ -12,6 +12,8 @@ permissions:
 jobs:
   lint:
     uses: './.github/workflows/lint.yml'
+    permissions:
+      security-events: write
 
   test:
     name: test
