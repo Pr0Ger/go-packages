@@ -28,6 +28,12 @@ jobs:
       with:
         version: v2.0
 
+  semgrep:
+    uses: ./.github/workflows/semgrep.yml
+    permissions:
+      contents: read
+      security-events: write
+
   zizmor:
     name: zizmor
     runs-on: ubuntu-24.04
