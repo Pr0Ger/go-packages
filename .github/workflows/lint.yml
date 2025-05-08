@@ -2,6 +2,9 @@ name: lint
 
 on:
   workflow_call:
+    secrets:
+      SEMGREP_APP_TOKEN:
+        required: true
 
 jobs:
   golangci:
@@ -33,6 +36,8 @@ jobs:
     permissions:
       contents: read
       security-events: write
+    secrets:
+      SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
   zizmor:
     name: zizmor
