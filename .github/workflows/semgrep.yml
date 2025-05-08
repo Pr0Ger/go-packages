@@ -1,13 +1,13 @@
 name: semgrep
+
 on:
   workflow_call:
     secrets:
       SEMGREP_APP_TOKEN:
         required: true
-
-  workflow_dispatch: {}
   schedule:
   - cron: '12 15 * * *'
+
 jobs:
   semgrep:
     name: semgrep/ci
