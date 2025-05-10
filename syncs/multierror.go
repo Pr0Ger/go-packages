@@ -12,17 +12,6 @@ type multierror struct {
 	lock sync.RWMutex
 }
 
-func (m *multierror) errorOrNil() error {
-	m.lock.RLock()
-	defer m.lock.RUnlock()
-
-	if len(m.errs) == 0 {
-		return nil
-	}
-
-	return m
-}
-
 func (m *multierror) Add(err error) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
@@ -44,4 +33,15 @@ func (m *multierror) Error() string {
 	}
 
 	return fmt.Sprintf("multierror: %d errors: %s", len(m.errs), strings.Join(errText, "; "))
+}
+
+func (m *multierror) errorOrNil() error {
+	m.lock.RLock()
+	defer m.lock.RUnlock()
+
+	if len(m.errs) == 0 {
+		return nil
+	}
+
+	return m
 }

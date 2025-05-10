@@ -38,6 +38,20 @@ func newExpectation(t TestingT, handler http.HandlerFunc, method string) *Expect
 	}
 }
 
+func (e *Expectation) Require() *Expectation {
+	e.require = true
+	return e
+}
+
+func (e *Expectation) errorf(format string, args ...interface{}) {
+	e.t.Helper()
+
+	e.t.Errorf(format, args...)
+	if e.require {
+		e.t.FailNow()
+	}
+}
+
 func (e *Expectation) performRequest() {
 	if e.recorder != nil {
 		// expectation is already executed; noop
@@ -71,20 +85,6 @@ func (e *Expectation) performRequest() {
 		}
 
 		h.ServeHTTP(e.recorder, req)
-	}
-}
-
-func (e *Expectation) Require() *Expectation {
-	e.require = true
-	return e
-}
-
-func (e *Expectation) errorf(format string, args ...interface{}) {
-	e.t.Helper()
-
-	e.t.Errorf(format, args...)
-	if e.require {
-		e.t.FailNow()
 	}
 }
 

@@ -30,29 +30,6 @@ func (s *TestStrategySuite) Errorf(format string, args ...interface{}) {
 	})
 }
 
-func (s *TestStrategySuite) repeatRunner(fn func(t assert.TestingT) bool) {
-	s.T().Helper()
-
-	success := false
-	for i := 0; i < maxTries && !success; i++ {
-		s.Run(fmt.Sprintf("attempt %d", i), func() {
-			s.errorLog = nil
-			result := fn(s)
-			if result {
-				success = true
-			} else {
-				s.T().Skipf("failed attempt (assertions failed: %d)", len(s.errorLog))
-			}
-		})
-	}
-	if !success {
-		// if all attempts failed print log from the last one
-		for _, logEntry := range s.errorLog {
-			s.T().Errorf(logEntry.format, logEntry.args...)
-		}
-	}
-}
-
 func (s *TestStrategySuite) TestExponentialBackoff() {
 	// tick   delay  total
 	//    1   0.000  0.000
@@ -195,6 +172,29 @@ func (s *TestStrategySuite) TestOnce() {
 	}
 
 	s.Equal(1, count, "should emit one tick")
+}
+
+func (s *TestStrategySuite) repeatRunner(fn func(t assert.TestingT) bool) {
+	s.T().Helper()
+
+	success := false
+	for i := 0; i < maxTries && !success; i++ {
+		s.Run(fmt.Sprintf("attempt %d", i), func() {
+			s.errorLog = nil
+			result := fn(s)
+			if result {
+				success = true
+			} else {
+				s.T().Skipf("failed attempt (assertions failed: %d)", len(s.errorLog))
+			}
+		})
+	}
+	if !success {
+		// if all attempts failed print log from the last one
+		for _, logEntry := range s.errorLog {
+			s.T().Errorf(logEntry.format, logEntry.args...)
+		}
+	}
 }
 
 func TestStrategies(t *testing.T) {
