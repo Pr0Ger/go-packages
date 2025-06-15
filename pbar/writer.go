@@ -12,7 +12,7 @@ type WriterWrapper struct {
 }
 
 func (ww *WriterWrapper) Write(p []byte) (n int, err error) {
-
+	return ww.originalStdout.Write(p)
 }
 
 func (ww *WriterWrapper) Start() error {
@@ -33,5 +33,13 @@ func (ww *WriterWrapper) Start() error {
 		}
 	}()
 
+	return nil
+}
+
+func (ww *WriterWrapper) Stop() error {
+	if ww.originalStdout != nil {
+		os.Stdout = ww.originalStdout
+		ww.originalStdout = nil
+	}
 	return nil
 }
