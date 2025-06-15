@@ -9,6 +9,7 @@ import (
 
 type WriterWrapper struct {
 	originalStdout *os.File
+	pipeWriter     *os.File
 }
 
 func (ww *WriterWrapper) Write(p []byte) (n int, err error) {
@@ -23,6 +24,7 @@ func (ww *WriterWrapper) Start() error {
 		return fmt.Errorf("could not create pipe: %v", err)
 	}
 
+	ww.pipeWriter = w
 	os.Stdout = w
 
 	go func() {
@@ -40,6 +42,10 @@ func (ww *WriterWrapper) Stop() error {
 	if ww.originalStdout != nil {
 		os.Stdout = ww.originalStdout
 		ww.originalStdout = nil
+	}
+	if ww.pipeWriter != nil {
+		ww.pipeWriter.Close()
+		ww.pipeWriter = nil
 	}
 	return nil
 }
