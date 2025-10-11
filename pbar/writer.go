@@ -35,7 +35,7 @@ func (ww *WriterWrapper) Width() uint {
 	if width == 0 {
 		width = 80
 	}
-	return uint(min(width, 80))
+	return min(uint(width), 80) //nolint:gosec
 }
 
 func (ww *WriterWrapper) Write(p []byte) (n int, err error) {
@@ -59,7 +59,7 @@ func (ww *WriterWrapper) Write(p []byte) (n int, err error) {
 }
 
 func (ww *WriterWrapper) WriteRaw(p []byte) (n int, err error) {
-	return ww.originalStdout.Write(p)
+	return ww.originalStdout.Write(p) //nolint:wrapcheck
 }
 
 func (ww *WriterWrapper) Start() error {
