@@ -35,8 +35,6 @@ jobs:
       with:
         go-version: ${{ matrix.go-version }}
         check-latest: true
-    - name: Install mockgen
-      run: go install go.uber.org/mock/mockgen@latest
     - name: Generate mocks
       run: go generate -x ./...
     - name: Run tests

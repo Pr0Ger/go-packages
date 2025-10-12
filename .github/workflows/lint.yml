@@ -22,9 +22,6 @@ jobs:
         go-version: '1.25.x'
         check-latest: true
 
-    - name: Install mockgen
-      run: go install go.uber.org/mock/mockgen@v0.5.2
-
     - name: Generate mocks
       run: go generate -x ./...
 
