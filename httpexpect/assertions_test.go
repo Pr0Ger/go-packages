@@ -11,7 +11,7 @@ import (
 	"go.pr0ger.dev/x/httpexpect/mocks"
 )
 
-//go:generate mockgen -package mocks -destination mocks/testingT.go . TestingT
+//go:generate go tool mockgen -package mocks -destination mocks/testingT.go . TestingT
 
 type TestExpectationSuite struct {
 	suite.Suite

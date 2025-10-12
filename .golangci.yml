@@ -39,6 +39,7 @@ linters:
   - gosec
   - gosmopolitan
   - iface
+  - iotamixing
   - lll
   - loggercheck
   - maintidx
@@ -139,6 +140,7 @@ formatters:
   - gofumpt
   - goimports
   - golines
+  - swaggo
   settings:
     gci:
       sections:
