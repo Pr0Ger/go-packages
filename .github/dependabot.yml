@@ -1,0 +1,22 @@
+version: 2
+updates:
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: "daily"
+  cooldown:
+    default-days: 7
+  reviewers:
+  - "Pr0Ger"
+
+- package-ecosystem: "gomod"
+  directory: "/"
+  schedule:
+    interval: "daily"
+  cooldown:
+    default-days: 5
+    semver-major-days: 30
+  allow:
+  - dependency-type: "direct"
+  reviewers:
+  - "Pr0Ger"
