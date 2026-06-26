@@ -18,11 +18,51 @@ const (
 	AlignRight
 )
 
+// Option configures a table created with New.
+type Option func(*Table)
+
+type rowSeparatorConfig struct {
+	minRows int
+	maxRows int
+}
+
 type Table struct {
-	columns    []string
-	templates  []*template.Template
-	alignments []Alignment
-	data       []interface{}
+	columns       []string
+	templates     []*template.Template
+	alignments    []Alignment
+	data          []interface{}
+	rowSeparators *rowSeparatorConfig
+}
+
+// New creates a table with the provided options.
+func New(options ...Option) *Table {
+	t := &Table{}
+
+	for _, option := range options {
+		option(t)
+	}
+
+	return t
+}
+
+// WithRowSeparators adds separator lines between row groups.
+//
+// Groups are sized between minRows and maxRows when possible. No separators are
+// added if splitting would leave a group smaller than minRows.
+func WithRowSeparators(minRows, maxRows int) Option {
+	if minRows <= 0 {
+		panic("table: minRows must be positive")
+	}
+	if maxRows < minRows {
+		panic("table: maxRows must be greater than or equal to minRows")
+	}
+
+	return func(t *Table) {
+		t.rowSeparators = &rowSeparatorConfig{
+			minRows: minRows,
+			maxRows: maxRows,
+		}
+	}
 }
 
 func (t *Table) AddColumn(header, format string) {
@@ -81,19 +121,60 @@ func (t *Table) String() string {
 	}
 	result.WriteString(strings.Join(line, "|") + "\n")
 
-	for i, width := range columnWidths {
-		line[i] = strings.Repeat("-", width+2)
-	}
-	result.WriteString(strings.Join(line, "+") + "\n")
+	separator := makeSeparatorLine(columnWidths)
+	result.WriteString(separator)
 
-	for _, row := range lines {
+	rowSeparatorBreaks := t.rowSeparatorBreaks(len(lines))
+	for rowNumber, row := range lines {
 		for i, column := range row {
 			line[i] = alignText(column, columnWidths[i], t.alignments[i])
 		}
 		result.WriteString(strings.Join(line, "|") + "\n")
+
+		if _, ok := rowSeparatorBreaks[rowNumber+1]; ok {
+			result.WriteString(separator)
+		}
 	}
 
 	return result.String()
+}
+
+func makeSeparatorLine(columnWidths []int) string {
+	line := make([]string, len(columnWidths))
+	for i, width := range columnWidths {
+		line[i] = strings.Repeat("-", width+2)
+	}
+
+	return strings.Join(line, "+") + "\n"
+}
+
+func (t *Table) rowSeparatorBreaks(rows int) map[int]struct{} {
+	if t.rowSeparators == nil {
+		return nil
+	}
+
+	config := t.rowSeparators
+	groupCount := (rows + config.maxRows - 1) / config.maxRows
+	if groupCount < 2 || rows < groupCount*config.minRows {
+		return nil
+	}
+
+	baseGroupSize := rows / groupCount
+	extraRows := rows % groupCount
+	breaks := make(map[int]struct{}, groupCount-1)
+
+	rowNumber := 0
+	for group := 0; group < groupCount-1; group++ {
+		groupSize := baseGroupSize
+		if group < extraRows {
+			groupSize++
+		}
+
+		rowNumber += groupSize
+		breaks[rowNumber] = struct{}{}
+	}
+
+	return breaks
 }
 
 func alignText(text string, width int, alignment Alignment) string {

@@ -1,11 +1,16 @@
 package table
 
 import (
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+type testRow struct {
+	ID string
+}
 
 func TestTable(t *testing.T) {
 	tests := []struct {
@@ -72,4 +77,45 @@ func TestTable(t *testing.T) {
 			assert.Equal(t, want, table.String())
 		})
 	}
+}
+
+func TestTableWithRowSeparators(t *testing.T) {
+	table := New(WithRowSeparators(2, 3))
+	table.AddColumn("ID", "{{ .ID }}")
+
+	for i := 1; i <= 4; i++ {
+		table.AddRow(testRow{ID: strconv.Itoa(i)})
+	}
+
+	want := strings.TrimLeft(`
+ ID 
+----
+ 1  
+ 2  
+----
+ 3  
+ 4  
+`, "\n")
+	assert.Equal(t, want, table.String())
+}
+
+func TestTableWithRowSeparatorsKeepsSmallRemainderTogether(t *testing.T) {
+	table := New(WithRowSeparators(4, 5))
+	table.AddColumn("ID", "{{ .ID }}")
+
+	for i := 1; i <= 6; i++ {
+		table.AddRow(testRow{ID: strconv.Itoa(i)})
+	}
+
+	want := strings.TrimLeft(`
+ ID 
+----
+ 1  
+ 2  
+ 3  
+ 4  
+ 5  
+ 6  
+`, "\n")
+	assert.Equal(t, want, table.String())
 }
