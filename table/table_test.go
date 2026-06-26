@@ -44,6 +44,25 @@ func TestTable(t *testing.T) {
  really long id to test alignment | name 
 `,
 		},
+		{
+			func() *Table {
+				tb := &Table{}
+				tb.AddColumnAligned("ID", "{{ .ID }}", AlignLeft)
+				tb.AddColumnAligned("Status", "{{ .Status }}", AlignCenter)
+				tb.AddColumnAligned("Count", "{{ .Count }}", AlignRight)
+
+				tb.AddRow(struct{ ID, Status, Count string }{"1", "ok", "7"})
+				tb.AddRow(struct{ ID, Status, Count string }{"longer", "warn", "120"})
+
+				return tb
+			},
+			`
+ ID     | Status | Count 
+--------+--------+-------
+ 1      |   ok   |     7 
+ longer |  warn  |   120 
+`,
+		},
 	}
 
 	for _, test := range tests {

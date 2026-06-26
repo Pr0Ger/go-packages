@@ -6,13 +6,31 @@ import (
 	"text/template"
 )
 
+// Alignment controls how text is aligned inside table columns.
+type Alignment int
+
+const (
+	// AlignLeft aligns text to the left side of a column.
+	AlignLeft Alignment = iota
+	// AlignCenter centers text inside a column.
+	AlignCenter
+	// AlignRight aligns text to the right side of a column.
+	AlignRight
+)
+
 type Table struct {
-	columns   []string
-	templates []*template.Template
-	data      []interface{}
+	columns    []string
+	templates  []*template.Template
+	alignments []Alignment
+	data       []interface{}
 }
 
 func (t *Table) AddColumn(header, format string) {
+	t.AddColumnAligned(header, format, AlignCenter)
+}
+
+// AddColumnAligned adds a column with the given text alignment.
+func (t *Table) AddColumnAligned(header, format string, alignment Alignment) {
 	t.columns = append(t.columns, header)
 
 	tmpl, err := template.New("template for " + header).Parse(format)
@@ -21,6 +39,7 @@ func (t *Table) AddColumn(header, format string) {
 	}
 
 	t.templates = append(t.templates, tmpl)
+	t.alignments = append(t.alignments, alignment)
 }
 
 func (t *Table) AddRow(data interface{}) {
@@ -58,9 +77,7 @@ func (t *Table) String() string {
 
 	line := make([]string, len(t.columns))
 	for i, column := range t.columns {
-		leftPadding := (columnWidths[i] - len(column)) / 2
-		rightPadding := columnWidths[i] - len(column) - leftPadding
-		line[i] = strings.Repeat(" ", leftPadding+1) + column + strings.Repeat(" ", rightPadding+1)
+		line[i] = alignText(column, columnWidths[i], t.alignments[i])
 	}
 	result.WriteString(strings.Join(line, "|") + "\n")
 
@@ -71,12 +88,27 @@ func (t *Table) String() string {
 
 	for _, row := range lines {
 		for i, column := range row {
-			leftPadding := (columnWidths[i] - len(column)) / 2
-			rightPadding := columnWidths[i] - len(column) - leftPadding
-			line[i] = strings.Repeat(" ", leftPadding+1) + column + strings.Repeat(" ", rightPadding+1)
+			line[i] = alignText(column, columnWidths[i], t.alignments[i])
 		}
 		result.WriteString(strings.Join(line, "|") + "\n")
 	}
 
 	return result.String()
+}
+
+func alignText(text string, width int, alignment Alignment) string {
+	padding := width - len(text)
+
+	var leftPadding, rightPadding int
+	switch alignment {
+	case AlignLeft:
+		rightPadding = padding
+	case AlignCenter:
+		leftPadding = padding / 2
+		rightPadding = padding - leftPadding
+	case AlignRight:
+		leftPadding = padding
+	}
+
+	return strings.Repeat(" ", leftPadding+1) + text + strings.Repeat(" ", rightPadding+1)
 }
