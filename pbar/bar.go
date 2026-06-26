@@ -10,7 +10,6 @@ type Bar struct {
 	Total   uint
 }
 
-//nolint:gosec
 func (b Bar) asString(width uint) string {
 	total := width - 7
 	filled := b.Current * total / b.Total
@@ -26,7 +25,7 @@ func (b Bar) asString(width uint) string {
 	}
 
 	res.WriteString("] ")
-	res.WriteString(fmt.Sprintf("%d%%", b.Current*100/b.Total))
+	fmt.Fprintf(&res, "%d%%", b.Current*100/b.Total)
 
 	return res.String()
 }

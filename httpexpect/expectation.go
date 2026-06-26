@@ -62,10 +62,11 @@ func (e *Expectation) performRequest() {
 		e.target = "/"
 	}
 
-	req := httptest.NewRequest(e.method, e.target, e.payload)
+	requestContext := context.Background()
 	if e.context != nil {
-		req = req.WithContext(e.context)
+		requestContext = e.context
 	}
+	req := httptest.NewRequestWithContext(requestContext, e.method, e.target, e.payload)
 	if e.contentType != "" {
 		req.Header.Add("Content-Type", e.contentType)
 	}

@@ -35,7 +35,7 @@ func (ww *WriterWrapper) Width() uint {
 	if width == 0 {
 		width = 80
 	}
-	return min(uint(width), 80) //nolint:gosec
+	return min(uint(width), 80)
 }
 
 func (ww *WriterWrapper) Write(p []byte) (n int, err error) {
