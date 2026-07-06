@@ -2,45 +2,22 @@ package repeater
 
 import (
 	"context"
-	"fmt"
 	"testing"
+	"testing/synctest"
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
 )
 
-const maxTries = 100
-
-type errorEntry struct {
-	format string
-	args   []interface{}
-}
-
-type TestStrategySuite struct {
-	suite.Suite
-
-	errorLog []errorEntry
-}
-
-func (s *TestStrategySuite) Errorf(format string, args ...interface{}) {
-	s.errorLog = append(s.errorLog, errorEntry{
-		format: format,
-		args:   args,
-	})
-}
-
-func (s *TestStrategySuite) TestExponentialBackoff() {
+func TestExponentialBackoff(t *testing.T) {
 	// tick   delay  total
 	//    1   0.000  0.000
 	//    2   0.100  0.100
 	//    3   0.200  0.300
 	//    4   0.400  0.700
 	//    5   0.800  1.500
-	//    6   1.600  end
-	s.repeatRunner(func(t assert.TestingT) bool {
-		result := true
-
+	//    6   1.600  3.100 — past the 2.000 deadline, never emitted
+	synctest.Test(t, func(t *testing.T) {
 		ch := ExponentialBackoff{
 			InitialInterval:     100 * time.Millisecond,
 			MaxElapsedTime:      2000 * time.Millisecond,
@@ -48,39 +25,32 @@ func (s *TestStrategySuite) TestExponentialBackoff() {
 			RandomizationFactor: 0,
 		}.Start(context.Background())
 
+		var delays []time.Duration
 		now := time.Now()
-		count := 0
 		for range ch {
-			if count != 0 {
-				duration := time.Since(now)
-				expectedDelay := (1 << (count - 1)) * 100 * time.Millisecond
-
-				result = result &&
-					assert.Greater(t, duration, expectedDelay-time.Millisecond, "too fast") &&
-					assert.Less(t, duration, expectedDelay+5*time.Millisecond, "too slow")
-			}
+			delays = append(delays, time.Since(now))
 			now = time.Now()
-
-			count++
 		}
-		result = result &&
-			assert.Equal(t, 5, count, "should emit 5 events")
 
-		return result
+		assert.Equal(t, []time.Duration{
+			0,
+			100 * time.Millisecond,
+			200 * time.Millisecond,
+			400 * time.Millisecond,
+			800 * time.Millisecond,
+		}, delays)
 	})
 }
 
-func (s *TestStrategySuite) TestExponentialBackoffWithRandomization() {
-	// tick		delay 	randomized delay	total
-	//    1   	0.000   0.000               0.000
-	//    2  	0.100   0.050-0.150         >=0.050, <= 0.150
-	//    3   	0.200   0.100-0.300         >=0.150, <= 0.450
-	//    4   	0.400   0.200-0.600         >=0.350, <= 1.050 (end)
-	//    5   	0.800   0.400-1.200         >=0.950, <= 2.250 (end)
-	//    6   	1.600   0.800-2.400         >=1.550 (end)
-	s.repeatRunner(func(t assert.TestingT) bool {
-		result := true
-
+func TestExponentialBackoffWithRandomization(t *testing.T) {
+	// tick   nominal  randomized   earliest total
+	//    1   0.000    0.000        0.000
+	//    2   0.100    0.050-0.150  0.050
+	//    3   0.200    0.100-0.300  0.150
+	//    4   0.400    0.200-0.600  0.350 (may land past the 1.000 deadline)
+	//    5   0.800    0.400-1.200  0.750 (may land past the 1.000 deadline)
+	//    6   1.600    0.800-2.400  1.550 — always past the deadline
+	synctest.Test(t, func(t *testing.T) {
 		ch := ExponentialBackoff{
 			InitialInterval:     100 * time.Millisecond,
 			MaxElapsedTime:      1000 * time.Millisecond,
@@ -88,82 +58,78 @@ func (s *TestStrategySuite) TestExponentialBackoffWithRandomization() {
 			RandomizationFactor: 0.5,
 		}.Start(context.Background())
 
-		now := time.Now()
+		start := time.Now()
+		now := start
 		count := 0
 		for range ch {
+			assert.Less(t, time.Since(start), 1000*time.Millisecond, "tick %d emitted past MaxElapsedTime", count+1)
 			if count != 0 {
 				duration := time.Since(now)
 				expectedDelay := (1 << (count - 1)) * 100 * time.Millisecond
-
-				result = result &&
-					assert.Greater(t, duration, expectedDelay/2-time.Millisecond, "too fast") &&
-					assert.Less(t, duration, expectedDelay*3/2+5*time.Millisecond, "too slow")
+				assert.GreaterOrEqual(t, duration, expectedDelay/2, "tick %d below randomization window", count+1)
+				assert.LessOrEqual(t, duration, expectedDelay*3/2, "tick %d above randomization window", count+1)
 			}
 			now = time.Now()
-
 			count++
 		}
 
-		result = result &&
-			assert.GreaterOrEqual(t, count, 4, "should have at least 4 tries") &&
-			assert.LessOrEqual(t, count, 6, "should have no more than 6 tries")
-
-		return result
+		assert.GreaterOrEqual(t, count, 3, "should have at least 3 ticks")
+		assert.LessOrEqual(t, count, 5, "should have no more than 5 ticks")
 	})
 }
 
-func (s *TestStrategySuite) TestExponentialBackoffCancellation() {
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
-	defer cancel()
+func TestExponentialBackoffCancellation(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+		defer cancel()
 
-	ch := DefaultExponentialBackoff().Start(ctx)
-
-	count := 0
-	for range ch {
-		count++
-	}
-	s.Less(count, 10, "channel should be closed before all elements emitted")
-}
-
-func (s *TestStrategySuite) TestFixedDelay() {
-	s.repeatRunner(func(t assert.TestingT) bool {
-		result := true
-		var now time.Time
-
-		ch := FixedDelay(5, 10*time.Millisecond).Start(context.Background())
+		ch := DefaultExponentialBackoff().Start(ctx)
 
 		count := 0
 		for range ch {
 			count++
-
-			if count != 1 {
-				result = result &&
-					assert.Greater(t, int64(time.Since(now)), int64(9*time.Millisecond), "too fast") &&
-					assert.Less(t, int64(time.Since(now)), int64(13*time.Millisecond), "too slow")
-			}
-			now = time.Now()
 		}
-
-		result = result && assert.Equal(t, 5, count, "should be called 5 times")
-
-		return result
+		assert.Equal(t, 1, count, "only the initial tick fits before cancellation")
 	})
 }
 
-func (s *TestStrategySuite) TestFixedDelayCancellation() {
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
-	defer cancel()
+func TestFixedDelay(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		ch := FixedDelay(5, 10*time.Millisecond).Start(context.Background())
 
-	ch := FixedDelay(10, 10*time.Millisecond).Start(ctx)
+		var delays []time.Duration
+		now := time.Now()
+		for range ch {
+			delays = append(delays, time.Since(now))
+			now = time.Now()
+		}
 
-	count := 0
-	for range ch {
-		count++
-	}
-	s.Less(count, 10, "channel should be closed before all elements emitted")
+		assert.Equal(t, []time.Duration{
+			0,
+			10 * time.Millisecond,
+			10 * time.Millisecond,
+			10 * time.Millisecond,
+			10 * time.Millisecond,
+		}, delays)
+	})
 }
 
-func (s *TestStrategySuite) TestOnce() {
+func TestFixedDelayCancellation(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 25*time.Millisecond)
+		defer cancel()
+
+		ch := FixedDelay(10, 10*time.Millisecond).Start(ctx)
+
+		count := 0
+		for range ch {
+			count++
+		}
+		assert.Equal(t, 3, count, "ticks at 0/10/20ms fit before the 25ms deadline")
+	})
+}
+
+func TestOnce(t *testing.T) {
 	ch := Once().Start(context.Background())
 
 	count := 0
@@ -171,32 +137,5 @@ func (s *TestStrategySuite) TestOnce() {
 		count++
 	}
 
-	s.Equal(1, count, "should emit one tick")
-}
-
-func (s *TestStrategySuite) repeatRunner(fn func(t assert.TestingT) bool) {
-	s.T().Helper()
-
-	success := false
-	for i := 0; i < maxTries && !success; i++ {
-		s.Run(fmt.Sprintf("attempt %d", i), func() {
-			s.errorLog = nil
-			result := fn(s)
-			if result {
-				success = true
-			} else {
-				s.T().Skipf("failed attempt (assertions failed: %d)", len(s.errorLog))
-			}
-		})
-	}
-	if !success {
-		// if all attempts failed print log from the last one
-		for _, logEntry := range s.errorLog {
-			s.T().Errorf(logEntry.format, logEntry.args...)
-		}
-	}
-}
-
-func TestStrategies(t *testing.T) {
-	suite.Run(t, new(TestStrategySuite))
+	assert.Equal(t, 1, count, "should emit one tick")
 }

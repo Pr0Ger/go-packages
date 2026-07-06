@@ -24,6 +24,16 @@ func (s ExponentialBackoff) Start(ctx context.Context) <-chan struct{} {
 		defer close(ch)
 
 		for count := 0; ; count++ {
+			// a sleep may overshoot the deadline, leaving both the timeout and
+			// the send ready at once; check expiry first so select can't
+			// randomly pick the send and emit a tick past MaxElapsedTime
+			select {
+			case <-ctx.Done():
+				return
+			case <-timeout:
+				return
+			default:
+			}
 			select {
 			case <-ctx.Done():
 				return
@@ -32,7 +42,7 @@ func (s ExponentialBackoff) Start(ctx context.Context) <-chan struct{} {
 			case ch <- struct{}{}:
 			}
 			random := 1 - (rand.New(cryptosource.NewSource()).Float64()*2*s.RandomizationFactor - s.RandomizationFactor)
-			time.Sleep(s.InitialInterval * time.Duration(math.Pow(s.Multiplier, float64(count))*random))
+			time.Sleep(time.Duration(float64(s.InitialInterval) * math.Pow(s.Multiplier, float64(count)) * random))
 		}
 	}()
 	return ch
@@ -49,6 +59,11 @@ func (s fixedDelay) Start(ctx context.Context) <-chan struct{} {
 		defer close(ch)
 
 		for i := 0; i < s.Repeats; i++ {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
 			select {
 			case <-ctx.Done():
 				return
