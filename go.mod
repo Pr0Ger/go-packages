@@ -1,11 +1,11 @@
 module go.pr0ger.dev/x
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/stretchr/testify v1.12.1
 	go.uber.org/mock v0.6.0
-	golang.org/x/sync v0.22.0
+	golang.org/x/sync v0.23.0
 	golang.org/x/term v0.45.0
 )
 
